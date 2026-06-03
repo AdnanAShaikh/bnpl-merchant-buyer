@@ -45,7 +45,6 @@ useEffect(() => {
       // ─────────────────────────────────────────
 
       if (res.status === 401) {
-
         // try refresh
         const refreshRes = await fetch(
           "/api/auth/refresh/bnplToken",
@@ -53,7 +52,7 @@ useEffect(() => {
             credentials: "include",
           }
         );
-
+        
         // refresh failed
         if (!refreshRes.ok) {
 
