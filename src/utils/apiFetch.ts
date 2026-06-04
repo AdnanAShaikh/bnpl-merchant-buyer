@@ -1,54 +1,11 @@
+const API_URL = import.meta.env.VITE_API_URL;
 
-import { store } from "../store/store";
-import {
-  logoutUser,
-} from "../store/slices/authSlice";
-
-export const apiFetch = async (
-  url: string,
+export const apiFetch = (
+  endpoint: string,
   options: RequestInit = {}
 ) => {
-
-  let res = await fetch(url, {
-    ...options,
+  return fetch(`${API_URL}${endpoint}`, {
     credentials: "include",
+    ...options,
   });
-
-  // ─────────────────────────────
-  // ACCESS TOKEN EXPIRED
-  // ─────────────────────────────
-
-  if (res.status === 401) {
-
-    const refreshRes = await fetch(
-      "/api/auth/refresh/bnplToken",
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
-
-    // refresh failed
-    if (!refreshRes.ok) {
-
-      store.dispatch(
-        logoutUser()
-      );
-
-      window.location.href = "/";
-
-      throw new Error(
-        "Session expired"
-      );
-    }
-
-    // retry original request
-    res = await fetch(url, {
-      ...options,
-      credentials: "include",
-    });
-  }
-
-  return res;
 };
-

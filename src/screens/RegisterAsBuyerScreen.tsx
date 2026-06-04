@@ -21,6 +21,7 @@ import { ERROR_MESSAGES } from "../constants/ERROR_MESSAGES";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
+import { apiFetch } from "../utils/apiFetch";
 
 type BuyerRegisterDraft = {
   activeStep: number;
@@ -852,7 +853,7 @@ const [companyData, setCompanyData] =
           formData.append("documentType", documentType);
           formData.append("entityType",   "buyer");
           formData.append("entityId",     String(buyerId));
-          return fetch("/api/document/upload", { method: "POST", body: formData })
+          return apiFetch("/api/document/upload", { method: "POST", body: formData })
             .then(async (res) => {
               if (!res.ok) {
                 const data = await res.json();

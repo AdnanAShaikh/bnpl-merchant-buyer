@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiFetch } from "../../utils/apiFetch";
 
 // ─── Shared Base Types ────────────────────────────────────────────────────────
 interface UserInfo {
@@ -163,10 +164,9 @@ export const registerBuyer = createAsyncThunk<RegisterResponse, RegisterBuyerPay
   "auth/registerBuyer",
   async (payload, { rejectWithValue }) => {
     try {
-      const res  = await fetch("/api/buyer/register", {
+      const res  = await apiFetch("/api/buyer/register", {
         method:      "POST",
         headers:     { "Content-Type": "application/json" },
-        credentials: "include",
         body:        JSON.stringify(payload),
       });
       const data = await res.json();
@@ -181,10 +181,9 @@ export const registerMerchant = createAsyncThunk<RegisterResponse, RegisterMerch
   "auth/registerMerchant",
   async (payload, { rejectWithValue }) => {
     try {
-      const res  = await fetch("/api/merchant/register", {
+      const res  = await apiFetch("/api/merchant/register", {
         method:      "POST",
         headers:     { "Content-Type": "application/json" },
-        credentials: "include",
         body:        JSON.stringify(payload),
       });
       const data = await res.json();
@@ -199,10 +198,9 @@ export const loginUser = createAsyncThunk<LoginResponse, LoginPayload, { rejectV
   "auth/loginUser",
   async (payload, { rejectWithValue }) => {
     try {
-      const res  = await fetch("/api/auth/login", {
+      const res  = await apiFetch("/api/auth/login", {
         method:      "POST",
         headers:     { "Content-Type": "application/json" },
-        credentials: "include",
         body:        JSON.stringify(payload),
       });
       const data = await res.json();
@@ -217,10 +215,9 @@ export const verifyOtpForLogin = createAsyncThunk<VerifyOtpResponse, VerifyOtpPa
   "auth/verifyOtp",
   async (payload, { rejectWithValue }) => {
     try {
-      const res  = await fetch("/api/auth/login/verify-otp", {
+      const res  = await apiFetch("/api/auth/login/verify-otp", {
         method:      "POST",
         headers:     { "Content-Type": "application/json" },
-        credentials: "include",
         body:        JSON.stringify(payload),
       });
       const data = await res.json();
@@ -235,9 +232,8 @@ export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
     try {
-      await fetch("/api/auth/logout/bnpl", {
+      await apiFetch("/api/auth/logout/bnpl", {
         method:      "POST",
-        credentials: "include",
       });
     } catch (err: any) { return rejectWithValue(err.message); }
   }
@@ -251,7 +247,7 @@ export const emailOtpSendAndVerify = createAsyncThunk<
   "auth/emailOtpSendAndVerify",
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await fetch("/api/auth/verify-otp", {
+      const res = await apiFetch("/api/auth/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -294,18 +290,13 @@ export const forgotPassword =
 
       try {
 
-        const res = await fetch(
+        const res = await apiFetch(
           "/api/auth/forgot-password",
           {
             method: "POST",
-
-            credentials: "include",
-
             headers: {
-              "Content-Type":
-                "application/json",
-            },
-
+              "Content-Type":"application/json",
+             },
             body: JSON.stringify(payload),
           }
         );

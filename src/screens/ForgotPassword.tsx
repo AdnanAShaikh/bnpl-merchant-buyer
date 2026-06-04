@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { forgotPassword } from '../store/slices/authSlice';
 import { toast } from 'react-toastify';
 import { ERROR_MESSAGES } from '../constants/ERROR_MESSAGES';
+import { apiFetch } from '../utils/apiFetch';
 
 export const ForgotPassword = () => {
     const dispatch = useAppDispatch();
@@ -20,11 +21,8 @@ export const ForgotPassword = () => {
 
             try {
 
-            const res = await fetch(
+            const res = await apiFetch(
                 "/api/auth/check-reset-access",
-                {
-                credentials: "include",
-                }
             );
 
             if (!res.ok) {

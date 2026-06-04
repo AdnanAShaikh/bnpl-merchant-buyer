@@ -14,6 +14,7 @@ import { logoutUser, selectAuthUser, setAuthUser } from "./store/slices/authSlic
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import ForgotPassword from "./screens/ForgotPassword";
+import { apiFetch } from "./utils/apiFetch";
 
 function App() {
   const authUser = useAppSelector(selectAuthUser);
@@ -33,11 +34,8 @@ useEffect(() => {
       // VERIFY ACCESS TOKEN
       // ─────────────────────────────────────────
 
-      let res = await fetch(
+      let res = await apiFetch(
         "/api/auth/verify/bnplToken",
-        {
-          credentials: "include",
-        }
       );
 
       // ─────────────────────────────────────────
@@ -46,13 +44,10 @@ useEffect(() => {
 
       if (res.status === 401) {
         // try refresh
-        const refreshRes = await fetch(
+        const refreshRes = await apiFetch(
           "/api/auth/refresh/bnplToken",
-          {
-            credentials: "include",
-          }
         );
-        
+
         // refresh failed
         if (!refreshRes.ok) {
 
@@ -66,11 +61,8 @@ useEffect(() => {
         }
 
         // retry verify after refresh
-        res = await fetch(
+        res = await apiFetch(
           "/api/auth/verify/bnplToken",
-          {
-            credentials: "include",
-          }
         );
       }
 

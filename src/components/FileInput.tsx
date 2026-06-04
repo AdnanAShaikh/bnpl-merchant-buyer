@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { apiFetch } from "../utils/apiFetch";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -69,7 +70,7 @@ export const FileInput = ({
       formData.append("entityType",   entityType);
       formData.append("entityId",     String(entityId));
 
-      const res  = await fetch("/api/document/upload", {
+      const res  = await apiFetch("/api/document/upload", {
         method: "POST",
         body:   formData,
         // Do NOT set Content-Type — browser sets it with boundary automatically

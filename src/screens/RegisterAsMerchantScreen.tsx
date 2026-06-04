@@ -19,6 +19,7 @@ import { ERROR_MESSAGES } from "../constants/ERROR_MESSAGES";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
+import { apiFetch } from "../utils/apiFetch";
 
 type MerchantRegisterDraft = {
   activeStep: number;
@@ -1011,7 +1012,7 @@ const RegisterAsMerchantScreen = () => {
           formData.append("documentType", documentType);
           formData.append("entityType",   "merchant");
           formData.append("entityId",     String(merchantId));
-          return fetch("/api/document/upload", { method: "POST", body: formData })
+          return apiFetch("/api/document/upload", { method: "POST", body: formData })
             .then(async (res) => {
               if (!res.ok) {
                 const data = await res.json();
