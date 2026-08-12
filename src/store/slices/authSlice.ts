@@ -120,11 +120,37 @@ type EmailOtpResponse = {
   verified?: boolean;
 };
 
+export interface BuyerProfile {
+  id:     number;
+  status: string;
+  user:   { id: number; email: string; name: string | null; role: string };
+  companyDetails:  any;
+  powerOfAttorney: any;
+  eligiblePlans: {
+    id: number;
+    planName: string;
+    termType: string;
+    termValue: number;
+    profitRate: string;   // Decimal → string
+    currency: string;
+    minimumAmount: string;
+    maximumAmount: string;
+  }[];
+}
+
+interface BuyerProfileResponse {
+  message: string;
+  buyer:   BuyerProfile;
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 interface AuthState {
   user:            UserInfo | null;
   isAuthenticated: boolean;
+
+  profile:        BuyerProfile | null;
+  profileLoading: boolean;
+  profileError:   string | null;
 
   // separate loading/error per action so UI can react granularly
   registerLoading: boolean;
@@ -143,6 +169,10 @@ interface AuthState {
 const initialState: AuthState = {
   user:            null,
   isAuthenticated: false,
+
+  profile:        null,
+  profileLoading: false,
+  profileError:   null,
 
   registerLoading: false,
   registerError:   null,
@@ -273,7 +303,17 @@ export const emailOtpSendAndVerify = createAsyncThunk<
   }
 );
 
-
+export const fetchMyBuyerProfile = createAsyncThunk<BuyerProfileResponse, void, { rejectValue: string }>(
+  "buyer/fetchMyProfile",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res  = await apiFetch("/api/buyer/me", { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch buyer profile");
+      return data;
+    } catch (err: any) { return rejectWithValue(err.message); }
+  }
+);
 
 export const forgotPassword =
   createAsyncThunk<
@@ -393,6 +433,13 @@ const authSlice = createSlice({
           action.payload ?? "Something went wrong";
       });
 
+    builder
+      .addCase(fetchMyBuyerProfile.pending,   (state) => { state.profileLoading = true;  state.profileError = null; })
+      .addCase(fetchMyBuyerProfile.fulfilled, (state, action) => { state.profileLoading = false; state.profile = action.payload.buyer; })
+      .addCase(fetchMyBuyerProfile.rejected,  (state, action) => { state.profileLoading = false; state.profileError = action.payload ?? "Something went wrong"; });
+
+
+
 
 
   },
@@ -416,3 +463,7 @@ export const selectOtpError            = (state: { auth: AuthState }) => state.a
 
 export const selectEmailOtpLoading      = (state: { auth: AuthState }) => state.auth.emailOtpLoading;
 export const selectEmailOtpError      = (state: { auth: AuthState }) => state.auth.emailOtpError;
+
+export const selectBuyerProfile        = (state: any) => state.auth.profile;
+export const selectBuyerProfileLoading = (state: any) => state.auth.profileLoading;
+export const selectEligiblePlans       = (state: any) => state.auth.profile?.eligiblePlans ?? [];

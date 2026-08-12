@@ -18,16 +18,25 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: "Wallet",
-    path: "/merchant/wallet",
+    label: "Orders",
+    path: "/merchant/orders",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
   },
   {
-    label: "Buyers",
+    label: "Products",
+    path: "/merchant/products",
+    icon: (
+     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10m0-10l8-4M4 7v10l8 4" />
+      </svg>
+    ),
+  },
+  {
+    label: "My Buyers",
     path: "/merchant/buyers",
     disabled: false,
     icon: (
@@ -36,12 +45,13 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
-  {
-    label: "Orders",
-    path: "/merchant/orders",
+
+    {
+    label: "Wallet",
+    path: "/merchant/wallet",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
       </svg>
     ),
   },
@@ -95,7 +105,7 @@ const LogoutDialog = ({ open, onConfirm, onCancel }: LogoutDialogProps) => (
       </div>
 
       {/* Text */}
-      <h2 className="text-lg font-bold text-[#1a2a4a] text-center mb-1">Sign Out</h2>
+      <h2 className="text-lg font-bold text-primary text-center mb-1">Sign Out</h2>
       <p className="text-sm text-gray-400 text-center mb-7">
         Are you sure you want to sign out of your account?
       </p>
@@ -104,7 +114,7 @@ const LogoutDialog = ({ open, onConfirm, onCancel }: LogoutDialogProps) => (
       <div className="flex gap-3">
         <button
           onClick={onCancel}
-          className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-[#1a2a4a] hover:text-[#1a2a4a] transition-all duration-200"
+          className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-primary hover:text-primary transition-all duration-200"
         >
           Cancel
         </button>
@@ -218,7 +228,7 @@ const SidebarMerchant = ({ children }: SidebarProps) => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setLogoutOpen(true)}
-              className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#1a2a4a] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-primary transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

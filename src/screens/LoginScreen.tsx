@@ -10,6 +10,7 @@ import { Input } from "../components/Input";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { loginUser, verifyOtpForLogin, selectLoginLoading, selectOtpLoading, emailOtpSendAndVerify, selectEmailOtpLoading } from "../store/slices/authSlice";
 import { toast } from "react-toastify";
+import { TestCredentials } from "../components/TestCredentials";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type AuthTab = 0 | 1; // 0 = Login, 1 = Sign Up
@@ -339,7 +340,7 @@ const ForgotPasswordDialog = ({
         </div>
 
         {/* Title */}
-        <h2 className="text-xl font-bold text-[#1a2a4a] text-center mb-1">
+        <h2 className="text-xl font-bold text-primary text-center mb-1">
           Forgot Password
         </h2>
 
@@ -596,6 +597,7 @@ const LoginForm = () => {
         />
 
       <div className="flex flex-col gap-5">
+      <TestCredentials />
 
         {/* Role selector */}
         <div className="grid grid-cols-2 gap-3">
@@ -683,6 +685,8 @@ const SignUpForm = () => {
 
   return (
     <div className="flex flex-col gap-5">
+      <TestCredentials />
+
       <RegistrationCard
         title="Register as Merchant"
         onRegister={() => navigate("/register/merchant")}

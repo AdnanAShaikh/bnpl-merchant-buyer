@@ -43,16 +43,16 @@ const MerchantWalletScreen = () => (
 
       {/* ── Wallet Balance Card ── */}
       <div className="bg-white rounded-2xl border border-gray-100 px-7 py-6">
-        <p className="text-base font-bold text-[#1a2a4a] mb-4">Wallet Account</p>
+        <p className="text-base font-bold text-primary mb-4">Wallet Account</p>
         <p className="text-xs text-gray-400 mb-1">Available Balance</p>
-        <p className="text-3xl font-bold text-[#1a2a4a]">
+        <p className="text-3xl font-bold text-primary">
           SAR {AVAILABLE_BALANCE.toLocaleString("en-SA", { minimumFractionDigits: 2 })}
         </p>
       </div>
 
       {/* ── Recent Transactions Card ── */}
       <div className="bg-white rounded-2xl border border-gray-100 px-7 py-6">
-        <p className="text-lg font-bold text-[#1a2a4a] mb-5">Recent Transactions</p>
+        <p className="text-lg font-bold text-primary mb-5">Recent Transactions</p>
 
         <div className="divide-y divide-gray-100">
           {TRANSACTIONS.map((txn) => (

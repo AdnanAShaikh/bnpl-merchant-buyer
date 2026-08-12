@@ -1,170 +1,217 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useMemo } from "react";
 import DataTable from "../../components/DataTable";
 import type { ColumnDef, RowAction } from "../../components/DataTable";
 import SidebarMerchant from "../../components/SidebarMerchant";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import {
+  fetchMyBuyers,
+  selectMyBuyers,
+  selectMyBuyersLoading,
+  selectMyBuyersError,
+  type MerchantBuyer,
+} from "../../store/slices/merchantSlice";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface BuyerSummaryCardProps {
-  totalActiveBuyers?: number;
-  noOfActiveOrders?: number;
-  inTransit?: number;
-  returned?: number;
-  disputed?: number;
-  completed?: number;
-}
+const NAVY = "#1a2a4a";
 
-// ─── Component ────────────────────────────────────────────────────────────────
-const BuyerSummaryCard = ({
-  totalActiveBuyers = 1,
-  noOfActiveOrders  = 5,
-  inTransit         = 5,
-  returned          = 0,
-  disputed          = 1,
-  completed         = 1,
-}: BuyerSummaryCardProps) => {
-  const statusTiles = [
-    { label: "In-Transit", count: inTransit },
-    { label: "Returned",   count: returned  },
-    { label: "Disputed",   count: disputed  },
-    { label: "Completed",  count: completed },
-  ];
+// ─── Status display ───────────────────────────────────────────────────────────
+const STATUS_META: Record<string, { label: string; cls: string; fill: string }> = {
+  DRAFT:            { label: "Draft",            cls: "bg-gray-400",   fill: "#9ca3af" },
+  PENDING_APPROVAL: { label: "Pending Approval", cls: "bg-blue-500",   fill: "#3b82f6" },
+  APPROVED:         { label: "Approved",         cls: "bg-teal-600",   fill: "#0d9488" },
+  REJECTED:         { label: "Rejected",         cls: "bg-red-500",    fill: "#ef4444" },
+  SUSPENDED:        { label: "Suspended",        cls: "bg-gray-500",   fill: "#6b7280" },
+};
+
+const money = (v: number | undefined, currency = "SAR") =>
+  v == null ? "—" : `${currency} ${Number(v).toLocaleString("en-SA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// ─── Summary card with donut ──────────────────────────────────────────────────
+const BuyerSummaryCard = ({ buyers }: { buyers: MerchantBuyer[] }) => {
+  const total = buyers.length;
+
+  const donutData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    buyers.forEach((b) => { counts[b.status] = (counts[b.status] ?? 0) + 1; });
+    return Object.entries(counts).map(([status, value]) => ({
+      name: STATUS_META[status]?.label ?? status,
+      value,
+      fill: STATUS_META[status]?.fill ?? "#E5E7EB",
+    }));
+  }, [buyers]);
+
+  const approvedCount = buyers.filter((b) => b.status === "APPROVED").length;
+  const totalOrders   = buyers.reduce((s, b) => s + (b.orderCount ?? 0), 0);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5 flex items-center gap-6">
-
-      {/* ── Left: summary stats ── */}
+      {/* Left: summary stats */}
       <div className="flex flex-col gap-4 min-w-[180px]">
-        <p className="text-sm font-semibold text-[#1a2a4a]">Buyer Summary</p>
-
+        <p className="text-sm font-semibold text-primary">Buyer Summary</p>
         <div>
-          <p className="text-xs text-gray-400 mb-0.5">Total Active Buyers</p>
-          <p className="text-xl font-bold text-[#1a2a4a]">{totalActiveBuyers}</p>
+          <p className="text-xs text-gray-400 mb-0.5">Total Buyers</p>
+          <p className="text-xl font-bold text-primary">{total}</p>
         </div>
-
         <div>
-          <p className="text-xs text-gray-400 mb-0.5">No of Active Orders</p>
-          <p className="text-xl font-bold text-[#1a2a4a]">{noOfActiveOrders}</p>
+          <p className="text-xs text-gray-400 mb-0.5">Approved</p>
+          <p className="text-xl font-bold text-primary">{approvedCount}</p>
         </div>
+        {totalOrders > 0 && (
+          <div>
+            <p className="text-xs text-gray-400 mb-0.5">Total Orders</p>
+            <p className="text-xl font-bold text-primary">{totalOrders}</p>
+          </div>
+        )}
       </div>
 
-      {/* Vertical divider */}
+      {/* Divider */}
       <div className="w-px self-stretch bg-gray-100" />
 
-      {/* ── Right: 2x2 status grid ── */}
-      <div className="grid grid-cols-2 gap-3 flex-1">
-        {statusTiles.map(({ label, count }) => (
-          <div
-            key={label}
-            className="border border-gray-100 rounded-xl px-5 py-3 flex items-center justify-between"
-          >
-            <div>
-              <p className="text-xl font-bold text-[#1a2a4a]">{count}</p>
-              <p className="text-xs text-gray-400 mt-0.5">Orders</p>
-            </div>
-            <span className="bg-[#1a2a4a] text-white text-xs font-bold px-3 py-1.5 rounded-lg">
-              {label}
-            </span>
+      {/* Right: donut */}
+      <div className="flex-1">
+        <p className="text-sm font-semibold text-gray-600 mb-3">Buyers by Status</p>
+        {total === 0 ? (
+          <div className="h-[160px] flex items-center justify-center">
+            <p className="text-sm text-gray-400">No buyers yet.</p>
           </div>
-        ))}
+        ) : (
+          <div className="flex items-center gap-4">
+            <div className="w-[160px] h-[160px] flex-shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={donutData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={52}
+                    outerRadius={72}
+                    dataKey="value"
+                    startAngle={90}
+                    endAngle={-270}
+                    strokeWidth={0}
+                    labelLine={false}
+                    label={({ cx, cy }: any) => (
+                      <>
+                        <text x={cx} y={cy - 6} textAnchor="middle" style={{ fontSize: 22, fontWeight: 700, fill: NAVY }}>
+                          {total}
+                        </text>
+                        <text x={cx} y={cy + 13} textAnchor="middle" style={{ fontSize: 11, fill: "#9CA3AF" }}>
+                          Buyers
+                        </text>
+                      </>
+                    )}
+                  >
+                    {donutData.map((d, i) => <Cell key={i} fill={d.fill} />)}
+                  </Pie>
+                  <Tooltip formatter={(v: any, n: any) => [`${v} buyer${v === 1 ? "" : "s"}`, n]} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Legend */}
+            <div className="flex flex-col gap-2 flex-1">
+              {donutData.map((d) => (
+                <div key={d.name} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ background: d.fill }} />
+                  <span className="text-xs text-gray-500 flex-1">{d.name}</span>
+                  <span className="text-xs font-bold text-primary">{d.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-
     </div>
   );
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface Buyer {
-  id: number;
-  buyerId: number;
-  buyerName: string;
-  buyerRegistrationNumber: number;
-  totalSpend: number;
-  orderCount: number;
-  buyerStatus: string;
-}
-
-// ─── Demo Data ────────────────────────────────────────────────────────────────
-const ALL_BUYERS: Buyer[] = [
-  { id: 1,  buyerId: 10127, buyerName: 'Shaikh',  buyerRegistrationNumber: 2312423, totalSpend: 12314, orderCount: 2, buyerStatus: "Pending Approval" },
-  { id: 2,  buyerId: 10128, buyerName: 'Khan',    buyerRegistrationNumber: 4521987, totalSpend: 20000, orderCount: 4, buyerStatus: "Approved" },
-  { id: 3,  buyerId: 10129, buyerName: 'Patel',   buyerRegistrationNumber: 7894561, totalSpend: 15000, orderCount: 3, buyerStatus: "Approved" },
-  { id: 4,  buyerId: 10130, buyerName: 'Sharma',  buyerRegistrationNumber: 9638527, totalSpend: 8000,  orderCount: 1, buyerStatus: "Suspended" },
-  { id: 5,  buyerId: 10131, buyerName: 'Verma',   buyerRegistrationNumber: 1472583, totalSpend: 50000, orderCount: 6, buyerStatus: "Approved" },
-  { id: 6,  buyerId: 10132, buyerName: 'Ansari',  buyerRegistrationNumber: 3692581, totalSpend: 12000, orderCount: 2, buyerStatus: "Rejected" },
-  { id: 7,  buyerId: 10133, buyerName: 'Reddy',   buyerRegistrationNumber: 2587413, totalSpend: 30000, orderCount: 5, buyerStatus: "Approved" },
-  { id: 8,  buyerId: 10134, buyerName: 'Iyer',    buyerRegistrationNumber: 9517538, totalSpend: 7000,  orderCount: 2, buyerStatus: "Pending Approval" },
-  { id: 9,  buyerId: 10135, buyerName: 'Mehta',   buyerRegistrationNumber: 7531594, totalSpend: 9000,  orderCount: 1, buyerStatus: "Approved" },
-  { id: 10, buyerId: 10136, buyerName: 'Gupta',   buyerRegistrationNumber: 8524569, totalSpend: 25000, orderCount: 4, buyerStatus: "Suspended" },
-];
-
-// ─── Column Definitions ───────────────────────────────────────────────────────
-const STATUS_STYLES: Record<string, string> = {
-  Approved:          "bg-teal-600",
-  Suspended:         "bg-gray-500",
-  Rejected:          "bg-red-500",
-  "Pending Approval":"bg-blue-500",
-};
-
-const COLUMNS: ColumnDef<Buyer>[] = [
-  { key: "buyerId",             label: "Buyer ID"  },
-  { key: "buyerName",          label: "Buyer Name" },
-  { key: "buyerRegistrationNumber",     label: "Buyer Registration Number"  },
-  { key: "totalSpend",   label: "Total Spend"    },
-  { key: 'orderCount', label: "Order Count"},
-  {
-    key: "buyerStatus",
-    label: "Buyer Status",
-    render: (value) => {
-      const cls = STATUS_STYLES[String(value)] ?? "bg-gray-400";
-      return (
-        <span className={`inline-block text-xs font-bold px-3 py-1 rounded-md text-white ${cls}`}>
-          {String(value)}
-        </span>
-      );
-    },
-  },
-];
-
-// ─── Row Actions ──────────────────────────────────────────────────────────────
-const ROW_ACTIONS: RowAction<Buyer>[] = [
-  {
-    label: "View Buyer",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-      </svg>
-    ),
-    onClick: (order) => console.log("View order", order),
-  },
-];
-
 // ─── Screen ───────────────────────────────────────────────────────────────────
 const MerchantBuyersListingScreen = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const buyers  = useAppSelector(selectMyBuyers);
+  const loading = useAppSelector(selectMyBuyersLoading);
+  const error   = useAppSelector(selectMyBuyersError);
+
+  useEffect(() => {
+    dispatch(fetchMyBuyers());
+  }, [dispatch]);
+
+  // ── Columns (trimmed to what the endpoint returns) ──
+  const COLUMNS: ColumnDef<MerchantBuyer>[] = [
+    { key: "id", label: "Buyer ID", render: (v) => <span className="font-semibold text-primary">#{String(v)}</span> },
+    { key: "companyName", label: "Company", render: (v) => v ?? "—" },
+    // These two only render meaningfully if your controller aggregates them:
+    { key: "orderCount", label: "Orders", render: (v) => v ?? "—" },
+    { key: "totalSpend", label: "Total Financed", render: (v) => money(v as number) },
+    {
+      key: "status",
+      label: "Status",
+      render: (value) => {
+        const meta = STATUS_META[String(value)] ?? { label: String(value), cls: "bg-gray-400" };
+        return <span className={`inline-block text-xs font-bold px-3 py-1 rounded-md text-white ${meta.cls}`}>{meta.label}</span>;
+      },
+    },
+  ];
+
+  const eyeIcon = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  );
+
+  const ROW_ACTIONS: RowAction<MerchantBuyer>[] = [
+    { label: "View Buyer", icon: eyeIcon, onClick: (buyer) => navigate(`/merchant/buyers/${buyer.id}`) },
+  ];
 
   return (
     <SidebarMerchant>
       <div className="mb-5">
-        <h1 className="text-xl font-bold text-[#1a2a4a]">Buyers</h1>
+        <h1 className="text-xl font-bold text-primary">Buyers</h1>
       </div>
 
-    <div className='mb-5'>
-         <BuyerSummaryCard />
-    </div>
+      <div className="mb-5">
+        <BuyerSummaryCard buyers={buyers} />
+      </div>
 
-      {/* Table */}
-      <DataTable<Buyer>
-        title="All Buyers"
-        columns={COLUMNS}
-        dataSource={ALL_BUYERS}
-        rowActions={ROW_ACTIONS}
-        searchable
-        searchKeys={["buyerId", "buyerName", "buyerRegistrationNumber", "totalSpend"]}
-        showStatusFilter
-        statusOptions={["Pending Approval", "Approved", "Rejected", "Suspended", "All Status"]}
-        defaultStatus="All Status"
-        defaultPageSize={10}
-      />
+      {/* States */}
+      {loading && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-16 flex items-center justify-center">
+          <span className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin" />
+          <span className="ml-3 text-sm text-gray-400">Loading buyers…</span>
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
+          <p className="text-sm font-semibold text-primary mb-1">Couldn't load buyers</p>
+          <p className="text-sm text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={() => dispatch(fetchMyBuyers())}
+            className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-[#243a5e] transition-colors"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <DataTable<MerchantBuyer>
+          title="All Buyers"
+          columns={COLUMNS}
+          dataSource={buyers}
+          rowActions={ROW_ACTIONS}
+          searchable
+          searchKeys={["id", "companyName", "status"]}
+          showStatusFilter
+          statusOptions={["PENDING_APPROVAL", "APPROVED", "REJECTED", "SUSPENDED", "All Status"]}
+          defaultStatus="All Status"
+          defaultPageSize={10}
+        />
+      )}
     </SidebarMerchant>
   );
 };

@@ -26,7 +26,7 @@ export const Input = ({
   <div className="flex flex-col gap-1 w-full">
     <div
       className={`border rounded-xl px-4 pt-2.5 pb-2 transition-all ${
-        error ? "border-red-500 border-2" : "border-gray-200 focus-within:border-[#1a2a4a]"
+        error ? "border-red-500 border-2" : "border-gray-200 focus-within:border-primary"
       }`}
     >
       <label className="text-xs text-gray-500 font-medium">

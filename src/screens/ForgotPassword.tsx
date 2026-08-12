@@ -133,21 +133,21 @@ const formatTime = (seconds: number) => {
       <nav className="bg-white/95 backdrop-blur-sm px-8 h-[70px] flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center gap-2">
           <div className="relative w-10 h-10 flex-shrink-0">
-            <div className="w-10 h-10 bg-[#1a3a6a] rounded-sm flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary rounded-sm flex items-center justify-center">
               <span className="text-white font-black text-lg leading-none">A</span>
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#e8a020] rounded-sm" />
           </div>
           <div className="flex flex-col leading-tight">
             <span className="font-black text-sm tracking-widest" style={{ color: "#e8a020" }}>
-              Adnan <span className="text-[#1a3a6a]">TRADING</span>
+              Adnan <span className="text-primary">TRADING</span>
             </span>
             <span className="text-[11px] text-gray-500 tracking-wide" style={{ fontFamily: "serif" }}>
               Invest In Future.
             </span>
           </div>
         </div>
-        <button className="border-2 border-[#1a3a6a] text-[#1a3a6a] font-semibold text-sm px-6 py-2 rounded-full hover:bg-[#1a3a6a] hover:text-white transition-all duration-200">
+        <button className="border-2 border-primary text-primary font-semibold text-sm px-6 py-2 rounded-full hover:bg-primary hover:text-white transition-all duration-200">
           Contact Us
         </button>
       </nav>

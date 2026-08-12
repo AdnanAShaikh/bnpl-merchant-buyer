@@ -4,6 +4,10 @@ import {
   FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER,
 } from "redux-persist";
 import authReducer from "./slices/authSlice";
+import productReducer from "./slices/productSlice";   
+import orderReducer from "./slices/orderSlice";   
+import merchantReducer from "./slices/merchantSlice";   
+import buyerReducer from "./slices/buyerSlice";   
 
 // ← explicit localStorage storage object instead of import
 const storage = {
@@ -23,6 +27,12 @@ const persistedReducer = persistReducer(persistConfig, authReducer);
 export const store = configureStore({
   reducer: {
     auth: persistedReducer,
+    product: productReducer,   
+    order: orderReducer,   
+    merchant: merchantReducer,   
+    buyer: buyerReducer,
+
+
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

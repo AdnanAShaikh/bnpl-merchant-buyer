@@ -17,15 +17,15 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
-  {
-    label: "Wallet",
-    path: "/buyer/wallet",
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-      </svg>
-    ),
-  },
+  // {
+  //   label: "Wallet",
+  //   path: "/buyer/wallet",
+  //   icon: (
+  //     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+  //       <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+  //     </svg>
+  //   ),
+  // },
   {
     label: "Orders",
     path: "/buyer/orders",
@@ -35,20 +35,20 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
-  {
-    label: "One - Time Card",
-    path: "/buyer/one-time-card",
-    disabled: true,
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
+  // {
+  //   label: "One - Time Card",
+  //   path: "/buyer/one-time-card",
+  //   disabled: true,
+  //   icon: (
+  //     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+  //       <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  //     </svg>
+  //   ),
+  // },
   {
     label: "Merchants",
     path: "/buyer/merchants",
-    disabled: true,
+    disabled: false,
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -121,7 +121,7 @@ const LogoutDialog = ({ open, onConfirm, onCancel }: LogoutDialogProps) => (
       </div>
 
       {/* Text */}
-      <h2 className="text-lg font-bold text-[#1a2a4a] text-center mb-1">Sign Out</h2>
+      <h2 className="text-lg font-bold text-primary text-center mb-1">Sign Out</h2>
       <p className="text-sm text-gray-400 text-center mb-7">
         Are you sure you want to sign out of your account?
       </p>
@@ -130,7 +130,7 @@ const LogoutDialog = ({ open, onConfirm, onCancel }: LogoutDialogProps) => (
       <div className="flex gap-3">
         <button
           onClick={onCancel}
-          className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-[#1a2a4a] hover:text-[#1a2a4a] transition-all duration-200"
+          className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-primary hover:text-primary transition-all duration-200"
         >
           Cancel
         </button>
@@ -245,7 +245,7 @@ const SidebarBuyer = ({ children }: SidebarProps) => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setLogoutOpen(true)}
-              className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#1a2a4a] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-primary transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

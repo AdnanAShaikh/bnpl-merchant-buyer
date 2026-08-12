@@ -104,7 +104,7 @@ export const FileInput = ({
         ${status === "success"   ? "border-green-400 bg-green-50"
         : status === "error"     ? "border-red-400 bg-red-50"
         : status === "uploading" ? "border-blue-300 bg-blue-50 cursor-not-allowed"
-        : "border-gray-300 hover:border-[#1a2a4a] hover:bg-gray-50"}`}
+        : "border-gray-300 hover:border-primary hover:bg-gray-50"}`}
       >
         {/* Icon */}
         {status === "uploading" ? (

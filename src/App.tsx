@@ -15,6 +15,13 @@ import { toast } from "react-toastify";
 import { useEffect } from "react";
 import ForgotPassword from "./screens/ForgotPassword";
 import { apiFetch } from "./utils/apiFetch";
+import MarketplaceListing from "./screens/buyer/Marketplace-Products/MarketplaceListing";
+import MarketplaceProductItemView from "./screens/buyer/Marketplace-Products/MarketplaceProductItemView";
+import MerchantProductsListingScreen from "./screens/merchant/product/MerchantProductsListingScreen";
+import MerchantCreateProductScreen from "./screens/merchant/product/MerchantCreateProductScreen";
+import MerchantEditProductScreen from "./screens/merchant/product/MerchantEditProductScreen";
+import BuyerMerchantsListingScreen from "./screens/buyer/MerchantList/BuyerMerchantsListingScreen";
+import BuyerMerchantsViewScreen from "./screens/buyer/MerchantList/BuyerMerchantsViewScreen";
 
 function App() {
   const authUser = useAppSelector(selectAuthUser);
@@ -127,6 +134,10 @@ useEffect(() => {
               <Route path="/buyer/dashboard" element={<BuyerDashboardScreen />} />
               <Route path="/buyer/wallet" element={<BuyerWalletScreen />} />
               <Route path="/buyer/orders" element={<BuyerOrdersListingScreen />} />
+              <Route path="/buyer/marketplace" element={<MarketplaceListing />} />
+              <Route path="/buyer/product/:id" element={<MarketplaceProductItemView />} />
+              <Route path="/buyer/merchants" element={<BuyerMerchantsListingScreen />} />
+              <Route path="/buyer/merchant/:id" element={<BuyerMerchantsViewScreen />} />
 
               {/* Prevent buyer from accessing merchant routes */}
               <Route path="/merchant/*" element={<Navigate to="/buyer/dashboard" replace />} />
@@ -140,6 +151,9 @@ useEffect(() => {
               <Route path="/merchant/wallet" element={<MerchantWalletScreen />} />
               <Route path="/merchant/buyers" element={<MerchantBuyersListingScreen />} />
               <Route path="/merchant/orders" element={<MerchantOrdersListingScreen />} />
+              <Route path="/merchant/products" element={<MerchantProductsListingScreen />} />
+              <Route path="/merchant/product/create" element={<MerchantCreateProductScreen />} />
+              <Route path="/merchant/product/edit/:id" element={<MerchantEditProductScreen />} />
 
               {/* Prevent merchant from accessing buyer routes */}
               <Route path="/buyer/*" element={<Navigate to="/merchant/dashboard" replace />} />

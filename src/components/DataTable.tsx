@@ -15,14 +15,13 @@ const PAGE_SIZES = [10, 20, 30, 40, 50];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface ColumnDef<T> {
-  /** Key of the data object to read */
-  key: keyof T;
-  /** Column header label */
-  label: string;
-  /** Optional custom cell renderer */
-  render?: (value: T[keyof T], row: T) => React.ReactNode;
-}
+export type ColumnDef<Row> = {
+  [Field in keyof Row]: {
+    key: Field;
+    label: string;
+    render?: (value: Row[Field], row: Row) => React.ReactNode;
+  };
+}[keyof Row];
 
 export interface RowAction<T> {
   label: string;
@@ -149,7 +148,7 @@ function Pagination({
         <button
           key={p}
           onClick={() => onPage(p)}
-          className={`${btn} ${p === page ? "bg-[#1a2a4a] text-white" : "text-gray-600 hover:bg-gray-100"}`}
+          className={`${btn} ${p === page ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"}`}
         >
           {p}
         </button>
@@ -229,7 +228,7 @@ function DataTable<T extends { id: number | string }>({
       {/* ── Header ── */}
       {(title || actionButton) && (
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          {title && <p className="text-base font-semibold text-[#1a2a4a]">{title}</p>}
+          {title && <p className="text-base font-semibold text-primary">{title}</p>}
           {actionButton && <div>{actionButton}</div>}
         </div>
       )}
@@ -250,7 +249,7 @@ function DataTable<T extends { id: number | string }>({
                 placeholder="Search..."
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); resetPage(); }}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#1a2a4a] transition-colors placeholder:text-gray-300"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-primary transition-colors placeholder:text-gray-300"
               />
             </div>
           )}
@@ -329,7 +328,7 @@ function DataTable<T extends { id: number | string }>({
                     >
                       {col.render
                         ? col.render(row[col.key], row)
-                        : String(row[col.key] ?? "")}
+                        : (row[col.key] as React.ReactNode)}
                     </TableCell>
                   ))}
                   {rowActions && rowActions.length > 0 && (

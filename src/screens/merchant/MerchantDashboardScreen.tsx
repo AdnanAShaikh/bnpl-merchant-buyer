@@ -64,7 +64,7 @@ const StatTiles = () => (
         {i > 0 && <div className="w-px bg-gray-100 self-stretch" />}
         <div className="flex flex-col gap-1 min-w-[140px]">
           <p className="text-sm text-gray-500">{s.label}</p>
-          <p className="text-xl font-bold text-[#1a2a4a]">{s.value}</p>
+          <p className="text-xl font-bold text-primary">{s.value}</p>
         </div>
       </React.Fragment>
     ))}
@@ -89,7 +89,7 @@ const ChartTabToggle = ({
           className={`px-5 py-2 text-sm font-semibold transition-all duration-200 ${
             active === t
               ? "bg-[#e8a020] text-white"
-              : "bg-white text-[#1a2a4a] hover:bg-gray-50"
+              : "bg-white text-primary hover:bg-gray-50"
           }`}
         >
           {t}
@@ -167,14 +167,14 @@ const RightPanel = () => (
       <div className="flex items-start justify-between mb-2">
         <div>
           <p className="text-sm text-gray-500 mb-1">Order count</p>
-          <p className="text-3xl font-bold text-[#1a2a4a]">{STATS.orderCount}</p>
+          <p className="text-3xl font-bold text-primary">{STATS.orderCount}</p>
         </div>
-        <button className="bg-[#1a2a4a] hover:bg-[#243a64] active:scale-[0.97] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200">
+        <button className="bg-primary hover:bg-[#243a64] active:scale-[0.97] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200">
           View Orders
         </button>
       </div>
       <p className="text-sm text-gray-500 mt-1">
-        <span className="font-bold text-[#1a2a4a]">{STATS.fulfillmentRate}%</span>{" "}
+        <span className="font-bold text-primary">{STATS.fulfillmentRate}%</span>{" "}
         fulfillment rate
       </p>
     </div>
@@ -190,7 +190,7 @@ const RightPanel = () => (
         ].map((m) => (
           <div key={m.label}>
             <p className="text-sm text-gray-500 mb-1">{m.label}</p>
-            <p className="text-2xl font-bold text-[#1a2a4a]">{m.value}</p>
+            <p className="text-2xl font-bold text-primary">{m.value}</p>
           </div>
         ))}
       </div>
