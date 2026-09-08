@@ -833,10 +833,6 @@ const LoginForm = () => {
   );
 };
 
-// ─── Sign Up Form ─────────────────────────────────────────────────────────────
-const DOCS_NOTE =
-  "Have your company registration, trade license, certified IBAN letter, power of attorney, and ID ready.";
-
 const RegistrationCard = ({
   title,
   subtitle,

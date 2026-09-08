@@ -246,8 +246,6 @@ const BuyerMerchantsViewScreen = () => {
     );
   }
 
-  const companyName = merchant.companyDetails?.companyName ?? "Merchant";
-
   return (
     <SidebarBuyer>
       {/* Header */}
