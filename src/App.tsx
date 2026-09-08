@@ -10,9 +10,13 @@ import MerchantWalletScreen from "./screens/merchant/MerchantWalletScreen";
 import MerchantBuyersListingScreen from "./screens/merchant/MerchantBuyersListingScreen";
 import MerchantOrdersListingScreen from "./screens/merchant/MerchantOrdersListingScreen";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
-import { logoutUser, selectAuthUser, setAuthUser } from "./store/slices/authSlice";
+import {
+  logoutUser,
+  selectAuthUser,
+  setAuthUser,
+} from "./store/slices/authSlice";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ForgotPassword from "./screens/ForgotPassword";
 import { apiFetch } from "./utils/apiFetch";
 import MarketplaceListing from "./screens/buyer/Marketplace-Products/MarketplaceListing";
@@ -27,150 +31,177 @@ function App() {
   const authUser = useAppSelector(selectAuthUser);
   const location = useLocation();
   const dispatch = useAppDispatch();
-  console.log(authUser)
+  const [booting, setBooting] = useState(true);
 
-useEffect(() => {
-
-  if (!authUser) return;
-
-  const verify = async () => {
-
-    try {
-
-      // ─────────────────────────────────────────
-      // VERIFY ACCESS TOKEN
-      // ─────────────────────────────────────────
-
-      let res = await apiFetch(
-        "/api/auth/verify/bnplToken",
-      );
-
-      // ─────────────────────────────────────────
-      // ACCESS TOKEN EXPIRED
-      // ─────────────────────────────────────────
-
-      if (res.status === 401) {
-        // try refresh
-        const refreshRes = await apiFetch(
-          "/api/auth/refresh/bnplToken",
-        );
-
-        // refresh failed
-        if (!refreshRes.ok) {
-
+  // ── Bootstrap: rehydrate auth from cookie on first mount ──
+  useEffect(() => {
+    const boot = async () => {
+      try {
+        const res = await apiFetch("/api/auth/verify/bnplToken");
+        if (res.ok) {
+          const data = await res.json();
+          dispatch(setAuthUser(data.user));
+        } else {
           dispatch(logoutUser());
-
-          toast.error(
-            "Session expired. Please login again."
-          );
-
-          return;
         }
-
-        // retry verify after refresh
-        res = await apiFetch(
-          "/api/auth/verify/bnplToken",
-        );
-      }
-
-      // ─────────────────────────────────────────
-      // VERIFIED
-      // ─────────────────────────────────────────
-
-      if (res.ok) {
-
-        const data = await res.json();
-
-        dispatch(
-          setAuthUser(data.user)
-        );
-
-      } else {
-
+      } catch {
         dispatch(logoutUser());
-
-        toast.error(
-          "Session expired. Please login again."
-        );
+      } finally {
+        setBooting(false);
       }
+    };
+    boot();
+  }, []); // run once on mount
 
-    } catch (error) {
+  // ── Re-verify / rehydrate on navigation ──
+  useEffect(() => {
+    if (!authUser) return;
 
-      dispatch(logoutUser());
+    const verify = async () => {
+      try {
+        const res = await apiFetch("/api/auth/verify/bnplToken");
+        if (res.ok) {
+          const data = await res.json();
+          dispatch(setAuthUser(data.user));
+        } else {
+          dispatch(logoutUser());
+          toast.error("Session expired. Please login again.");
+        }
+      } catch {
+        dispatch(logoutUser());
+        toast.error("System crashed. Please login again.");
+      }
+    };
 
-      toast.error(
-        "System crashed. Please login again."
-      );
-    }
-  };
+    verify();
+  }, [location.pathname]);
 
-  verify();
-
-}, [location.pathname]);
-
+  if (booting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-[#1a2a4a] border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-400 text-sm">Authenticating…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-    <Routes>
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Routes>
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-    <Route
-        path="/"
-        element={authUser ? authUser?.role === 'MERCHANT' ?  
-                              <Navigate to="/merchant/dashboard" replace /> 
-                              : <Navigate to="/buyer/dashboard" replace />  
-                          : <LoginScreen />}
-      />      
-      
-      
-      <Route path="/register/merchant" element={<RegisterAsMerchantScreen />} />
-      <Route path="/register/buyer" element={<RegisterAsBuyerScreen />} />
+        <Route
+          path="/"
+          element={
+            authUser ? (
+              authUser?.role === "MERCHANT" ? (
+                <Navigate to="/merchant/dashboard" replace />
+              ) : (
+                <Navigate to="/buyer/dashboard" replace />
+              )
+            ) : (
+              <LoginScreen />
+            )
+          }
+        />
 
-      {authUser ? (
-        <>
-          {/* Buyer Routes */}
-          {authUser.role === "BUYER" && (
-            <>
-              <Route path="/buyer/dashboard" element={<BuyerDashboardScreen />} />
-              <Route path="/buyer/wallet" element={<BuyerWalletScreen />} />
-              <Route path="/buyer/orders" element={<BuyerOrdersListingScreen />} />
-              <Route path="/buyer/marketplace" element={<MarketplaceListing />} />
-              <Route path="/buyer/product/:id" element={<MarketplaceProductItemView />} />
-              <Route path="/buyer/merchants" element={<BuyerMerchantsListingScreen />} />
-              <Route path="/buyer/merchant/:id" element={<BuyerMerchantsViewScreen />} />
+        <Route
+          path="/register/merchant"
+          element={<RegisterAsMerchantScreen />}
+        />
+        <Route path="/register/buyer" element={<RegisterAsBuyerScreen />} />
 
-              {/* Prevent buyer from accessing merchant routes */}
-              <Route path="/merchant/*" element={<Navigate to="/buyer/dashboard" replace />} />
-            </>
-          )}
+        {authUser ? (
+          <>
+            {/* Buyer Routes */}
+            {authUser.role === "BUYER" && (
+              <>
+                <Route
+                  path="/buyer/dashboard"
+                  element={<BuyerDashboardScreen />}
+                />
+                <Route path="/buyer/wallet" element={<BuyerWalletScreen />} />
+                <Route
+                  path="/buyer/orders"
+                  element={<BuyerOrdersListingScreen />}
+                />
+                <Route
+                  path="/buyer/marketplace"
+                  element={<MarketplaceListing />}
+                />
+                <Route
+                  path="/buyer/product/:id"
+                  element={<MarketplaceProductItemView />}
+                />
+                <Route
+                  path="/buyer/merchants"
+                  element={<BuyerMerchantsListingScreen />}
+                />
+                <Route
+                  path="/buyer/merchant/:id"
+                  element={<BuyerMerchantsViewScreen />}
+                />
 
-          {/* Merchant Routes */}
-          {authUser.role === "MERCHANT" && (
-            <>
-              <Route path="/merchant/dashboard" element={<MerchantDashboardScreen />} />
-              <Route path="/merchant/wallet" element={<MerchantWalletScreen />} />
-              <Route path="/merchant/buyers" element={<MerchantBuyersListingScreen />} />
-              <Route path="/merchant/orders" element={<MerchantOrdersListingScreen />} />
-              <Route path="/merchant/products" element={<MerchantProductsListingScreen />} />
-              <Route path="/merchant/product/create" element={<MerchantCreateProductScreen />} />
-              <Route path="/merchant/product/edit/:id" element={<MerchantEditProductScreen />} />
+                {/* Prevent buyer from accessing merchant routes */}
+                <Route
+                  path="/merchant/*"
+                  element={<Navigate to="/buyer/dashboard" replace />}
+                />
+              </>
+            )}
 
-              {/* Prevent merchant from accessing buyer routes */}
-              <Route path="/buyer/*" element={<Navigate to="/merchant/dashboard" replace />} />
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          {/* Not logged in */}
-          <Route path="/buyer/*" element={<Navigate to="/" replace />} />
-          <Route path="/merchant/*" element={<Navigate to="/" replace />} />
-        </>
-      )}
+            {/* Merchant Routes */}
+            {authUser.role === "MERCHANT" && (
+              <>
+                <Route
+                  path="/merchant/dashboard"
+                  element={<MerchantDashboardScreen />}
+                />
+                <Route
+                  path="/merchant/wallet"
+                  element={<MerchantWalletScreen />}
+                />
+                <Route
+                  path="/merchant/buyers"
+                  element={<MerchantBuyersListingScreen />}
+                />
+                <Route
+                  path="/merchant/orders"
+                  element={<MerchantOrdersListingScreen />}
+                />
+                <Route
+                  path="/merchant/products"
+                  element={<MerchantProductsListingScreen />}
+                />
+                <Route
+                  path="/merchant/product/create"
+                  element={<MerchantCreateProductScreen />}
+                />
+                <Route
+                  path="/merchant/product/edit/:id"
+                  element={<MerchantEditProductScreen />}
+                />
 
-    </Routes>
+                {/* Prevent merchant from accessing buyer routes */}
+                <Route
+                  path="/buyer/*"
+                  element={<Navigate to="/merchant/dashboard" replace />}
+                />
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Not logged in */}
+            <Route path="/buyer/*" element={<Navigate to="/" replace />} />
+            <Route path="/merchant/*" element={<Navigate to="/" replace />} />
+          </>
+        )}
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

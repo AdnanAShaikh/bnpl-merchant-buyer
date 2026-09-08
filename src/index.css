@@ -1,8 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary:   #1a2a4a;
+  --color-primary: #1a2a4a;
   --color-secondary: #e8a020;
 
-  --color-red: #C41E3A
+  --color-red: #c41e3a;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  caret-color: #1f2937;
+  transition: background-color 9999s ease-in-out 0s;
 }

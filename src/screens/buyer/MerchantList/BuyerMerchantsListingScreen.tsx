@@ -20,6 +20,7 @@ const MerchantCard = ({
   onClick: () => void;
 }) => {
   const name = merchant.companyDetails?.companyName ?? "Unnamed Merchant";
+  const contactName = merchant.user?.name ?? null;
   const productCount = merchant._count?.products ?? 0;
 
   return (
@@ -38,16 +39,30 @@ const MerchantCard = ({
         ) : (
           // placeholder until companyImageUrl lands
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-            <svg className="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            <svg
+              className="w-10 h-10 text-gray-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
             </svg>
           </div>
         )}
       </div>
 
       {/* Title + meta */}
+      {/* Title + meta */}
       <div className="p-4">
         <p className="text-sm font-bold text-primary truncate">{name}</p>
+        {contactName && (
+          <p className="text-xs text-gray-400 truncate">{contactName}</p>
+        )}
         <p className="text-xs text-gray-400 mt-1">
           {productCount} {productCount === 1 ? "product" : "products"}
         </p>
@@ -62,8 +77,8 @@ const BuyerMerchantsListingScreen = () => {
   const navigate = useNavigate();
 
   const merchants = useAppSelector(selectMarketplaceMerchants);
-  const loading   = useAppSelector(selectMarketplaceMerchantsLoading);
-  const error     = useAppSelector(selectMarketplaceMerchantsError);
+  const loading = useAppSelector(selectMarketplaceMerchantsLoading);
+  const error = useAppSelector(selectMarketplaceMerchantsError);
 
   const [query, setQuery] = useState("");
 
@@ -76,7 +91,7 @@ const BuyerMerchantsListingScreen = () => {
     const q = query.trim().toLowerCase();
     if (!q) return merchants;
     return merchants.filter((m: MarketplaceMerchant) =>
-      (m.companyDetails?.companyName ?? "").toLowerCase().includes(q)
+      (m.companyDetails?.companyName ?? "").toLowerCase().includes(q),
     );
   }, [query, merchants]);
 
@@ -86,14 +101,25 @@ const BuyerMerchantsListingScreen = () => {
       <div className="flex items-center justify-between mb-5 gap-4">
         <div>
           <h1 className="text-xl font-bold text-primary">Marketplace</h1>
-          <p className="text-xs text-gray-400 mt-0.5">Browse merchants and explore their catalogues</p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Browse merchants and explore their catalogues
+          </p>
         </div>
 
         {/* Search */}
         <div className="relative w-full max-w-xs">
-          <svg className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg
+            className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           <input
             type="text"
@@ -116,7 +142,9 @@ const BuyerMerchantsListingScreen = () => {
       {/* Error */}
       {error && !loading && (
         <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
-          <p className="text-sm font-semibold text-primary mb-1">Couldn't load merchants</p>
+          <p className="text-sm font-semibold text-primary mb-1">
+            Couldn't load merchants
+          </p>
           <p className="text-sm text-gray-400 mb-4">{error}</p>
           <button
             onClick={() => dispatch(fetchMarketplaceMerchants())}
@@ -131,10 +159,14 @@ const BuyerMerchantsListingScreen = () => {
       {!loading && !error && filtered.length === 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center">
           <p className="text-sm font-semibold text-primary mb-1">
-            {query ? "No merchants match your search" : "No merchants available yet"}
+            {query
+              ? "No merchants match your search"
+              : "No merchants available yet"}
           </p>
           <p className="text-sm text-gray-400">
-            {query ? "Try a different name." : "Check back soon as merchants join the marketplace."}
+            {query
+              ? "Try a different name."
+              : "Check back soon as merchants join the marketplace."}
           </p>
         </div>
       )}

@@ -11,7 +11,11 @@ import { Input } from "../components/Input";
 import { FileInput } from "../components/FileInput";
 import { StepIconRoot } from "../components/StepIconRoot";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { emailOtpSendAndVerify, registerBuyer, selectEmailOtpLoading } from "../store/slices/authSlice";
+import {
+  emailOtpSendAndVerify,
+  registerBuyer,
+  selectEmailOtpLoading,
+} from "../store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
@@ -58,14 +62,13 @@ type BuyerRegisterDraft = {
   };
 };
 
-
 interface OtpDialogProps {
-  open:     boolean;
-  email:    string;
-  loading:  boolean;
+  open: boolean;
+  email: string;
+  loading: boolean;
   onVerify: (code: string) => void;
   onResend: () => void;
-  onClose:  () => void;
+  onClose: () => void;
 }
 
 const STEPS = [
@@ -77,17 +80,36 @@ const STEPS = [
 ];
 
 const COMPANY_TYPES = [
-  { value: "SINGLE_SHAREHOLDER",   en: "Single Shareholder Company",      ar: "شركة الشخص الواحد"                  },
-  { value: "SIMPLIFIED_JOINT_STOCK", en: "Simplified Joint Stock Company", ar: "شركة المساهمة المبسطة"              },
-  { value: "JOINT_STOCK",          en: "Joint Stock Company",              ar: "شركة المساهمة"                      },
-  { value: "LIMITED_LIABILITY",    en: "Limited Liability Company",        ar: "الشركة ذات المسؤولية المحدودة"      },
-  { value: "LIMITED_PARTNERSHIP",  en: "Limited Partnership",              ar: "شركة التوصية البسيطة"               },
-  { value: "PROFESSIONAL",         en: "Professional Company",             ar: "شركة مهنية"                         },
-  { value: "FOREIGN",              en: "Foreign Company",                  ar: "شركة أجنبية"                        },
-  { value: "GENERAL_PARTNERSHIP",  en: "General Partnership",              ar: "شركة التضامن"                       },
+  {
+    value: "SINGLE_SHAREHOLDER",
+    en: "Single Shareholder Company",
+    ar: "شركة الشخص الواحد",
+  },
+  {
+    value: "SIMPLIFIED_JOINT_STOCK",
+    en: "Simplified Joint Stock Company",
+    ar: "شركة المساهمة المبسطة",
+  },
+  { value: "JOINT_STOCK", en: "Joint Stock Company", ar: "شركة المساهمة" },
+  {
+    value: "LIMITED_LIABILITY",
+    en: "Limited Liability Company",
+    ar: "الشركة ذات المسؤولية المحدودة",
+  },
+  {
+    value: "LIMITED_PARTNERSHIP",
+    en: "Limited Partnership",
+    ar: "شركة التوصية البسيطة",
+  },
+  { value: "PROFESSIONAL", en: "Professional Company", ar: "شركة مهنية" },
+  { value: "FOREIGN", en: "Foreign Company", ar: "شركة أجنبية" },
+  {
+    value: "GENERAL_PARTNERSHIP",
+    en: "General Partnership",
+    ar: "شركة التضامن",
+  },
 ];
 
-  
 const stepTitles = [
   "Let's get started by creating your Buyer profile.",
   "Tell us about your company.",
@@ -97,14 +119,20 @@ const stepTitles = [
 ];
 
 const TITLES = ["Mr", "Ms", "Mrs", "Dr", "Prof"];
-const OTP_LENGTH     = 6;
+const OTP_LENGTH = 6;
 const RESEND_SECONDS = 90;
-const STORAGE_KEY =
-  "buyer-registration-draft";
+const STORAGE_KEY = "buyer-registration-draft";
 
-const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDialogProps) => {
-  const [digits,    setDigits]    = useState<string[]>(Array(OTP_LENGTH).fill(""));
-  const [otpError,  setOtpError]  = useState<string>("");
+const OtpDialog = ({
+  open,
+  email,
+  loading,
+  onVerify,
+  onResend,
+  onClose,
+}: OtpDialogProps) => {
+  const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+  const [otpError, setOtpError] = useState<string>("");
   const [countdown, setCountdown] = useState(RESEND_SECONDS);
   const [canResend, setCanResend] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -121,7 +149,10 @@ const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDia
 
   useEffect(() => {
     if (!open) return;
-    if (countdown <= 0) { setCanResend(true); return; }
+    if (countdown <= 0) {
+      setCanResend(true);
+      return;
+    }
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [countdown, open]);
@@ -131,31 +162,46 @@ const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDia
 
   const handleChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, "").slice(-1);
-    const next  = [...digits];
+    const next = [...digits];
     next[index] = digit;
     setDigits(next);
     setOtpError("");
     if (digit && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key === "Backspace") {
       if (digits[index]) {
-        const next = [...digits]; next[index] = ""; setDigits(next);
+        const next = [...digits];
+        next[index] = "";
+        setDigits(next);
       } else if (index > 0) {
         inputRefs.current[index - 1]?.focus();
       }
-    } else if (e.key === "ArrowLeft"  && index > 0)              inputRefs.current[index - 1]?.focus();
-    else if   (e.key === "ArrowRight" && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
-    else if   (e.key === "Enter") { const code = digits.join(""); if (code.length === OTP_LENGTH) onVerify(code); }
+    } else if (e.key === "ArrowLeft" && index > 0)
+      inputRefs.current[index - 1]?.focus();
+    else if (e.key === "ArrowRight" && index < OTP_LENGTH - 1)
+      inputRefs.current[index + 1]?.focus();
+    else if (e.key === "Enter") {
+      const code = digits.join("");
+      if (code.length === OTP_LENGTH) onVerify(code);
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, OTP_LENGTH);
     if (!pasted) return;
     const next = [...digits];
-    pasted.split("").forEach((ch, i) => { next[i] = ch; });
+    pasted.split("").forEach((ch, i) => {
+      next[i] = ch;
+    });
     setDigits(next);
     inputRefs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus();
     if (pasted.length === OTP_LENGTH) onVerify(pasted);
@@ -163,7 +209,10 @@ const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDia
 
   const handleSubmit = () => {
     const code = digits.join("");
-    if (code.length < OTP_LENGTH) { setOtpError("Please enter all 6 digits."); return; }
+    if (code.length < OTP_LENGTH) {
+      setOtpError("Please enter all 6 digits.");
+      return;
+    }
     onVerify(code);
   };
 
@@ -185,44 +234,93 @@ const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDia
       maxWidth="xs"
       fullWidth
       slotProps={{
-        backdrop: { sx: { backgroundColor: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)" } },
-        paper:    { sx: { borderRadius: "20px", boxShadow: "0 25px 60px rgba(0,0,0,0.4)", padding: "8px", overflow: "visible" } },
+        backdrop: {
+          sx: {
+            backgroundColor: "rgba(0,0,0,0.75)",
+            backdropFilter: "blur(4px)",
+          },
+        },
+        paper: {
+          sx: {
+            borderRadius: "20px",
+            boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
+            padding: "8px",
+            overflow: "visible",
+          },
+        },
       }}
     >
       <DialogContent sx={{ p: "32px 36px 36px", position: "relative" }}>
-
         {/* Close */}
         <IconButton
           onClick={onClose}
           size="small"
-          sx={{ position: "absolute", top: 12, right: 12, color: "#9CA3AF", "&:hover": { color: "#374151", background: "#F3F4F6" } }}
+          sx={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            color: "#9CA3AF",
+            "&:hover": { color: "#374151", background: "#F3F4F6" },
+          }}
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </IconButton>
 
         {/* Icon */}
         <div className="flex justify-center mb-5">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)" }}>
-            <svg className="w-8 h-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center"
+            style={{
+              background: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)",
+            }}
+          >
+            <svg
+              className="w-8 h-8 text-secondary"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.8}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
             </svg>
           </div>
         </div>
 
-        <h2 className="text-xl font-bold text-primary text-center mb-1">Enter OTP</h2>
+        <h2 className="text-xl font-bold text-primary text-center mb-1">
+          Enter OTP
+        </h2>
         <p className="text-sm text-gray-400 text-center mb-6">
           Enter 6-digit code sent to{" "}
           <span className="font-semibold text-secondary">{email}</span>
         </p>
 
         {/* Digit boxes */}
-        <div className="flex items-center justify-center gap-2.5 mb-2" onPaste={handlePaste}>
+        <div
+          className="flex items-center justify-center gap-2.5 mb-2"
+          onPaste={handlePaste}
+        >
           {digits.map((digit, i) => (
             <input
               key={i}
-              ref={(el) => { inputRefs.current[i] = el; }}
+              ref={(el) => {
+                inputRefs.current[i] = el;
+              }}
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -232,11 +330,12 @@ const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDia
               className={`
                 w-11 h-12 text-center text-lg font-bold rounded-xl border-2 outline-none
                 transition-all duration-150 bg-gray-50
-                ${digit
-                  ? "border-secondary bg-white text-primary"
-                  : otpError
-                  ? "border-red-400 bg-red-50"
-                  : "border-gray-200 text-gray-800 focus:border-secondary focus:bg-white"
+                ${
+                  digit
+                    ? "border-secondary bg-white text-primary"
+                    : otpError
+                      ? "border-red-400 bg-red-50"
+                      : "border-gray-200 text-gray-800 focus:border-secondary focus:bg-white"
                 }
               `}
               style={{ caretColor: "transparent" }}
@@ -244,17 +343,27 @@ const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDia
           ))}
         </div>
 
-        {otpError && <p className="text-xs text-red-500 text-center mt-1 mb-3">{otpError}</p>}
+        {otpError && (
+          <p className="text-xs text-red-500 text-center mt-1 mb-3">
+            {otpError}
+          </p>
+        )}
 
         {/* Resend */}
         <div className="flex justify-center mt-4 mb-6">
           {canResend ? (
-            <button onClick={handleResend} className="text-sm font-semibold text-secondary hover:text-red-800 transition-colors">
+            <button
+              onClick={handleResend}
+              className="text-sm font-semibold text-secondary hover:text-red-800 transition-colors"
+            >
               Resend Code
             </button>
           ) : (
             <p className="text-sm text-gray-400">
-              Resend <span className="font-semibold text-secondary">{formatTime(countdown)}</span>
+              Resend{" "}
+              <span className="font-semibold text-secondary">
+                {formatTime(countdown)}
+              </span>
             </p>
           )}
         </div>
@@ -267,15 +376,31 @@ const OtpDialog = ({ open, email, loading, onVerify, onResend, onClose }: OtpDia
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              <svg
+                className="w-4 h-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
               </svg>
               Verifying...
             </span>
-          ) : "Verify"}
+          ) : (
+            "Verify"
+          )}
         </button>
-
       </DialogContent>
     </Dialog>
   );
@@ -286,8 +411,18 @@ function CustomStepIcon(props: StepIconProps) {
   return (
     <StepIconRoot ownerState={{ active, completed }}>
       {completed ? (
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
         </svg>
       ) : (
         icon
@@ -302,30 +437,46 @@ const ProfileSetup = ({ data, onChange, errors }: any) => {
   const [showConfirm, setShowConfirm] = useState(false);
   return (
     <div className="flex flex-col gap-4">
-       <Input
-        label="Name" name="name" type="text"
+      <Input
+        label="Name"
+        name="name"
+        type="text"
         value={data.name || ""}
         error={errors.name}
         onChange={(v) => onChange("name", v)}
         required
-      /> 
+      />
       <Input
-        label="Email Address" name="email" type="email" placeholder="david@xyz.com"
-         value={data.email} onChange={(v) => onChange("email", v)}
+        label="Email Address"
+        name="email"
+        type="email"
+        placeholder="david@xyz.com"
+        value={data.email}
+        onChange={(v) => onChange("email", v)}
         error={errors.email}
         required
       />
       <Input
-        label="Create Password" name="password" placeholder="Please Enter"
-         value={data.password} onChange={(v) => onChange("password", v)}
-        showToggle onToggle={() => setShowPass(!showPass)} show={showPass}
+        label="Create Password"
+        name="password"
+        placeholder="Please Enter"
+        value={data.password}
+        onChange={(v) => onChange("password", v)}
+        showToggle
+        onToggle={() => setShowPass(!showPass)}
+        show={showPass}
         error={errors.password}
         required
       />
       <Input
-        label="Confirm Password" name="confirmPassword" placeholder="Please Enter"
-         value={data.confirmPassword} onChange={(v) => onChange("confirmPassword", v)}
-        showToggle onToggle={() => setShowConfirm(!showConfirm)} show={showConfirm}
+        label="Confirm Password"
+        name="confirmPassword"
+        placeholder="Please Enter"
+        value={data.confirmPassword}
+        onChange={(v) => onChange("confirmPassword", v)}
+        showToggle
+        onToggle={() => setShowConfirm(!showConfirm)}
+        show={showConfirm}
         error={errors.confirmPassword}
         required
       />
@@ -336,32 +487,38 @@ const ProfileSetup = ({ data, onChange, errors }: any) => {
 // ─── Step 2 — Company Details Screen ─────────────────────────────────────────────────
 const CompanyDetails = ({ data, onChange, errors }: any) => (
   <div className="flex flex-col gap-4">
- 
     {/* Company Name + Registration Number */}
     <div className="grid grid-cols-2 gap-4">
       <Input
-        label="Company Name" name="companyName" required
+        label="Company Name"
+        name="companyName"
+        required
         value={data.companyName}
         onChange={(v) => onChange("companyName", v)}
         error={errors.companyName}
       />
       <Input
-        label="Company Registration Number" name="companyRegistrationNo" required
+        label="Company Registration Number"
+        name="companyRegistrationNo"
+        required
         value={data.companyRegistrationNo}
         onChange={(v) => onChange("companyRegistrationNo", v)}
         error={errors.companyRegistrationNo}
       />
     </div>
- 
+
     {/* Corporate Telephone + Company Type */}
     <div className="grid grid-cols-2 gap-4">
       <Input
-        label="Corporate Telephone Number" name="corporateTelephone" type="tel" required
+        label="Corporate Telephone Number"
+        name="corporateTelephone"
+        type="tel"
+        required
         value={data.corporateTelephone}
         onChange={(v) => onChange("corporateTelephone", v)}
         error={errors.corporateTelephone}
       />
- 
+
       {/* Company Type Dropdown */}
       <div className="flex flex-col gap-1 w-full">
         <div
@@ -384,11 +541,24 @@ const CompanyDetails = ({ data, onChange, errors }: any) => (
                 fontSize: "14px",
                 color: data.companyType ? "#1f2937" : "#9CA3AF",
                 "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                "& .MuiSelect-select": { padding: "0", paddingRight: "24px !important" },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": { border: "none" },
+                "& .MuiSelect-select": {
+                  padding: "0",
+                  paddingRight: "24px !important",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  border: "none",
+                },
               }}
             >
-              <MenuItem value="" disabled sx={{ fontFamily: "inherit", fontSize: "13px", color: "#9CA3AF" }}>
+              <MenuItem
+                value=""
+                disabled
+                sx={{
+                  fontFamily: "inherit",
+                  fontSize: "13px",
+                  color: "#9CA3AF",
+                }}
+              >
                 Please select
               </MenuItem>
               {COMPANY_TYPES.map((c) => (
@@ -399,7 +569,9 @@ const CompanyDetails = ({ data, onChange, errors }: any) => (
                 >
                   <div className="flex flex-col">
                     <span>{c.en}</span>
-                    <span className="text-xs text-gray-400" dir="rtl">{c.ar}</span>
+                    <span className="text-xs text-gray-400" dir="rtl">
+                      {c.ar}
+                    </span>
                   </div>
                 </MenuItem>
               ))}
@@ -411,41 +583,47 @@ const CompanyDetails = ({ data, onChange, errors }: any) => (
         )}
       </div>
     </div>
- 
+
     {/* Operation License Number + Expiration Date */}
     <div className="grid grid-cols-2 gap-4">
       <Input
-        label="Operation License Number" name="operationLicenseNo"
+        label="Operation License Number"
+        name="operationLicenseNo"
         value={data.operationLicenseNo || ""}
         onChange={(v) => onChange("operationLicenseNo", v)}
       />
       <Input
-        label="Expiration Date" name="operationLicenseExpiry" type="date"
+        label="Expiration Date"
+        name="operationLicenseExpiry"
+        type="date"
         value={data.operationLicenseExpiry || ""}
         onChange={(v) => onChange("operationLicenseExpiry", v)}
       />
     </div>
- 
+
     {/* SAGIA Number */}
     <Input
-      label="SAGIA Number" name="sagiaNumber"
+      label="SAGIA Number"
+      name="sagiaNumber"
       value={data.sagiaNumber || ""}
       onChange={(v) => onChange("sagiaNumber", v)}
     />
- 
   </div>
 );
 // ─── Step 3 — Power of Attorney Screen ───────────────────────────────────────────────
 
 const PowerOfAttorney = ({ data, onChange, errors }: any) => (
   <div className="flex flex-col gap-4">
-
     {/* Title dropdown + First Name */}
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-1">
-        <div className={`border rounded-xl px-4 pt-2.5 pb-2 transition-all ${
-          errors.title ? "border-red-500 border-2" : "border-gray-200 focus-within:border-primary"
-        }`}>
+        <div
+          className={`border rounded-xl px-4 pt-2.5 pb-2 transition-all ${
+            errors.title
+              ? "border-red-500 border-2"
+              : "border-gray-200 focus-within:border-primary"
+          }`}
+        >
           <label className="text-xs text-gray-500 font-medium block mb-1">
             Title <span className="text-red-500">*</span>
           </label>
@@ -454,47 +632,101 @@ const PowerOfAttorney = ({ data, onChange, errors }: any) => (
             onChange={(e) => onChange("title", e.target.value)}
             className="w-full text-sm text-gray-800 outline-none bg-transparent"
           >
-            <option value="" disabled>Please select</option>
+            <option value="" disabled>
+              Please select
+            </option>
             {TITLES.map((t) => (
-              <option key={t} value={t}>{t}</option>
+              <option key={t} value={t}>
+                {t}
+              </option>
             ))}
           </select>
         </div>
-        {errors.title && <p className="text-xs text-red-500 pl-1">{errors.title}</p>}
+        {errors.title && (
+          <p className="text-xs text-red-500 pl-1">{errors.title}</p>
+        )}
       </div>
 
-      <Input label="First Name" name="firstName" required
-        value={data.firstName} onChange={(v) => onChange("firstName", v)} error={errors.firstName} />
+      <Input
+        label="First Name"
+        name="firstName"
+        required
+        value={data.firstName}
+        onChange={(v) => onChange("firstName", v)}
+        error={errors.firstName}
+      />
     </div>
 
     {/* Last Name + Mobile Number */}
     <div className="grid grid-cols-2 gap-4">
-      <Input label="Last Name" name="lastName" required
-        value={data.lastName} onChange={(v) => onChange("lastName", v)} error={errors.lastName} />
-      <Input label="Mobile Number" name="mobileNumber" type="tel" required
-        value={data.mobileNumber} onChange={(v) => onChange("mobileNumber", v)} error={errors.mobileNumber} />
+      <Input
+        label="Last Name"
+        name="lastName"
+        required
+        value={data.lastName}
+        onChange={(v) => onChange("lastName", v)}
+        error={errors.lastName}
+      />
+      <Input
+        label="Mobile Number"
+        name="mobileNumber"
+        type="tel"
+        required
+        value={data.mobileNumber}
+        onChange={(v) => onChange("mobileNumber", v)}
+        error={errors.mobileNumber}
+      />
     </div>
 
     {/* Home Address */}
-    <Input label="Home Address" name="homeAddress" required
-      value={data.homeAddress} onChange={(v) => onChange("homeAddress", v)} error={errors.homeAddress} />
+    <Input
+      label="Home Address"
+      name="homeAddress"
+      required
+      value={data.homeAddress}
+      onChange={(v) => onChange("homeAddress", v)}
+      error={errors.homeAddress}
+    />
 
     {/* City + District */}
     <div className="grid grid-cols-2 gap-4">
-      <Input label="City" name="city" required
-        value={data.city} onChange={(v) => onChange("city", v)} error={errors.city} />
-      <Input label="District" name="district" required
-        value={data.district} onChange={(v) => onChange("district", v)} error={errors.district} />
+      <Input
+        label="City"
+        name="city"
+        required
+        value={data.city}
+        onChange={(v) => onChange("city", v)}
+        error={errors.city}
+      />
+      <Input
+        label="District"
+        name="district"
+        required
+        value={data.district}
+        onChange={(v) => onChange("district", v)}
+        error={errors.district}
+      />
     </div>
 
     {/* Postal Code + National ID */}
     <div className="grid grid-cols-2 gap-4">
-      <Input label="Postal Code" name="postalCode" required
-        value={data.postalCode} onChange={(v) => onChange("postalCode", v)} error={errors.postalCode} />
-      <Input label="National Identity Number / Iqama Number" name="nationalIdNumber" required
-        value={data.nationalIdNumber} onChange={(v) => onChange("nationalIdNumber", v)} error={errors.nationalIdNumber} />
+      <Input
+        label="Postal Code"
+        name="postalCode"
+        required
+        value={data.postalCode}
+        onChange={(v) => onChange("postalCode", v)}
+        error={errors.postalCode}
+      />
+      <Input
+        label="National Identity Number / Iqama Number"
+        name="nationalIdNumber"
+        required
+        value={data.nationalIdNumber}
+        onChange={(v) => onChange("nationalIdNumber", v)}
+        error={errors.nationalIdNumber}
+      />
     </div>
-
   </div>
 );
 
@@ -508,16 +740,52 @@ const SupportingDocuments = ({
 }) => (
   <div className="flex flex-col gap-5">
     <p className="text-sm text-gray-500 leading-relaxed">
-      Please upload clear, readable copies of the following documents. Accepted formats: PDF, JPG, PNG (max 10MB each).
+      Please upload clear, readable copies of the following documents. Accepted
+      formats: PDF, JPG, PNG (max 10MB each).
     </p>
     {[
-      { documentType: "commercial_registration",      label: "Valid Commercial Registration",   hint: "An official copy of the Commercial Register for commercial activity and type of company.", required: true },
-      { documentType: "trade_license",                label: "Business Trade License",           hint: undefined, required: true },
-      { documentType: "audited_financial_accounts",   label: "Audited Financial Accounts",       hint: "Period of last year.",       required: true },
-      { documentType: "vat_returns",                  label: "VAT Returns",                      hint: "Period of last 4 quarters.", required: true },
-      { documentType: "bank_statements",              label: "Bank Statements",                  hint: "Period of last 6 months.",   required: true },
-      { documentType: "power_of_attorney",            label: "Power of Attorney Document",       hint: undefined, required: true },
-      { documentType: "vat_registration_certificate", label: "VAT Registration Certificate",     hint: undefined, required: true },
+      {
+        documentType: "commercial_registration",
+        label: "Valid Commercial Registration",
+        hint: "An official copy of the Commercial Register for commercial activity and type of company.",
+        required: true,
+      },
+      {
+        documentType: "trade_license",
+        label: "Business Trade License",
+        hint: undefined,
+        required: true,
+      },
+      {
+        documentType: "audited_financial_accounts",
+        label: "Audited Financial Accounts",
+        hint: "Period of last year.",
+        required: true,
+      },
+      {
+        documentType: "vat_returns",
+        label: "VAT Returns",
+        hint: "Period of last 4 quarters.",
+        required: true,
+      },
+      {
+        documentType: "bank_statements",
+        label: "Bank Statements",
+        hint: "Period of last 6 months.",
+        required: true,
+      },
+      {
+        documentType: "power_of_attorney",
+        label: "Power of Attorney Document",
+        hint: undefined,
+        required: true,
+      },
+      {
+        documentType: "vat_registration_certificate",
+        label: "VAT Registration Certificate",
+        hint: undefined,
+        required: true,
+      },
     ].map((doc) => (
       <FileInput
         key={doc.documentType}
@@ -544,27 +812,42 @@ const ReviewConfirm = ({ allData }: { allData: any }) => {
     {
       title: "Company Details",
       rows: [
-        { label: "Company Name",               value: allData.company.companyName           },
-        { label: "Company Registration No.",   value: allData.company.companyRegistrationNo },
-        { label: "Corporate Telephone",        value: allData.company.corporateTelephone    },
-        { label: "Company Type",               value: allData.company.companyType           },
-        { label: "Operation License No.",      value: allData.company.operationLicenseNo || "—"     },
-        { label: "Operation License Expiry",   value: allData.company.operationLicenseExpiry || "—" },
-        { label: "SAGIA Number",               value: allData.company.sagiaNumber || "—"            },
+        { label: "Company Name", value: allData.company.companyName },
+        {
+          label: "Company Registration No.",
+          value: allData.company.companyRegistrationNo,
+        },
+        {
+          label: "Corporate Telephone",
+          value: allData.company.corporateTelephone,
+        },
+        { label: "Company Type", value: allData.company.companyType },
+        {
+          label: "Operation License No.",
+          value: allData.company.operationLicenseNo || "—",
+        },
+        {
+          label: "Operation License Expiry",
+          value: allData.company.operationLicenseExpiry || "—",
+        },
+        { label: "SAGIA Number", value: allData.company.sagiaNumber || "—" },
       ],
     },
     {
       title: "Power of Attorney",
       rows: [
-        { label: "Title",           value: allData.attorney.title           },
-        { label: "First Name",      value: allData.attorney.firstName       },
-        { label: "Last Name",       value: allData.attorney.lastName        },
-        { label: "Mobile Number",   value: allData.attorney.mobileNumber    },
-        { label: "Home Address",    value: allData.attorney.homeAddress     },
-        { label: "City",            value: allData.attorney.city            },
-        { label: "District",        value: allData.attorney.district        },
-        { label: "Postal Code",     value: allData.attorney.postalCode      },
-        { label: "National ID / Iqama", value: allData.attorney.nationalIdNumber },
+        { label: "Title", value: allData.attorney.title },
+        { label: "First Name", value: allData.attorney.firstName },
+        { label: "Last Name", value: allData.attorney.lastName },
+        { label: "Mobile Number", value: allData.attorney.mobileNumber },
+        { label: "Home Address", value: allData.attorney.homeAddress },
+        { label: "City", value: allData.attorney.city },
+        { label: "District", value: allData.attorney.district },
+        { label: "Postal Code", value: allData.attorney.postalCode },
+        {
+          label: "National ID / Iqama",
+          value: allData.attorney.nationalIdNumber,
+        },
       ],
     },
   ];
@@ -572,10 +855,14 @@ const ReviewConfirm = ({ allData }: { allData: any }) => {
   return (
     <div className="flex flex-col gap-5">
       <p className="text-sm text-gray-500">
-        Please review your information before submitting. You can go back to edit any section.
+        Please review your information before submitting. You can go back to
+        edit any section.
       </p>
       {sections.map((s) => (
-        <div key={s.title} className="border border-gray-100 rounded-xl overflow-hidden">
+        <div
+          key={s.title}
+          className="border border-gray-100 rounded-xl overflow-hidden"
+        >
           <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-100">
             <p className="text-sm font-semibold text-primary">{s.title}</p>
           </div>
@@ -583,7 +870,9 @@ const ReviewConfirm = ({ allData }: { allData: any }) => {
             {s.rows.map((r) => (
               <div key={r.label} className="flex justify-between px-4 py-2.5">
                 <span className="text-xs text-gray-400">{r.label}</span>
-                <span className="text-xs font-medium text-gray-700">{r.value || "—"}</span>
+                <span className="text-xs font-medium text-gray-700">
+                  {r.value || "—"}
+                </span>
               </div>
             ))}
           </div>
@@ -607,35 +896,41 @@ function validateStep(step: number, data: any): Record<string, string> {
 
   // ── Step 0: Profile Setup ──
   if (step === 0) {
-    if (!data.name) errs.name = "Name is required"
+    if (!data.name) errs.name = "Name is required";
     if (!data.email) errs.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(data.email)) errs.email = "Enter a valid email";
+    else if (!/\S+@\S+\.\S+/.test(data.email))
+      errs.email = "Enter a valid email";
     if (!data.password) errs.password = "Password is required";
     else if (data.password.length < 8) errs.password = "Minimum 8 characters";
-    if (!data.confirmPassword) errs.confirmPassword = "Please confirm your password";
-    else if (data.password !== data.confirmPassword) errs.confirmPassword = "Passwords do not match";
+    if (!data.confirmPassword)
+      errs.confirmPassword = "Please confirm your password";
+    else if (data.password !== data.confirmPassword)
+      errs.confirmPassword = "Passwords do not match";
   }
 
   // ── Step 1: Company Details ──
   if (step === 1) {
-    if (!data.companyName)           errs.companyName           = "Company name is required";
-    if (!data.companyRegistrationNo) errs.companyRegistrationNo = "Company registration number is required";
-    if (!data.corporateTelephone)    errs.corporateTelephone    = "Corporate telephone is required";
-    if (!data.companyType)           errs.companyType           = "Company type is required";
+    if (!data.companyName) errs.companyName = "Company name is required";
+    if (!data.companyRegistrationNo)
+      errs.companyRegistrationNo = "Company registration number is required";
+    if (!data.corporateTelephone)
+      errs.corporateTelephone = "Corporate telephone is required";
+    if (!data.companyType) errs.companyType = "Company type is required";
     // operationLicenseNo, operationLicenseExpiry, sagiaNumber → optional, no validation
   }
 
   // // ── Step 2: Power of Attorney ──
   if (step === 2) {
-    if (!data.title)            errs.title            = "Title is required";
-    if (!data.firstName)        errs.firstName        = "First name is required";
-    if (!data.lastName)         errs.lastName         = "Last name is required";
-    if (!data.mobileNumber)     errs.mobileNumber     = "Mobile number is required";
-    if (!data.homeAddress)      errs.homeAddress      = "Home address is required";
-    if (!data.city)             errs.city             = "City is required";
-    if (!data.district)         errs.district         = "District is required";
-    if (!data.postalCode)       errs.postalCode       = "Postal code is required";
-    if (!data.nationalIdNumber) errs.nationalIdNumber = "National ID / Iqama number is required";
+    if (!data.title) errs.title = "Title is required";
+    if (!data.firstName) errs.firstName = "First name is required";
+    if (!data.lastName) errs.lastName = "Last name is required";
+    if (!data.mobileNumber) errs.mobileNumber = "Mobile number is required";
+    if (!data.homeAddress) errs.homeAddress = "Home address is required";
+    if (!data.city) errs.city = "City is required";
+    if (!data.district) errs.district = "District is required";
+    if (!data.postalCode) errs.postalCode = "Postal code is required";
+    if (!data.nationalIdNumber)
+      errs.nationalIdNumber = "National ID / Iqama number is required";
     // No nationality, dateOfBirth, placeOfBirth for buyer
   }
 
@@ -651,42 +946,33 @@ function validateStep(step: number, data: any): Record<string, string> {
 // ─── Main Component ───────────────────────────────────────────────────────────
 const RegisterAsBuyerScreen = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate()
-  const isLoadingOTP  = useAppSelector(selectEmailOtpLoading);
+  const navigate = useNavigate();
+  const isLoadingOTP = useAppSelector(selectEmailOtpLoading);
 
-  const savedDraft: BuyerRegisterDraft | null =
-  (() => {
+  const savedDraft: BuyerRegisterDraft | null = (() => {
     try {
-
-      const raw = localStorage.getItem(
-        STORAGE_KEY
-      );
+      const raw = localStorage.getItem(STORAGE_KEY);
 
       return raw ? JSON.parse(raw) : null;
-
     } catch {
       return null;
     }
   })();
 
-  const [activeStep, setActiveStep] =
-    useState(savedDraft?.activeStep ?? 0);
-  
+  const [activeStep, setActiveStep] = useState(savedDraft?.activeStep ?? 0);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const [profileData, setProfileData] = useState(
+    savedDraft?.profileData ?? {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  );
 
-  const [profileData, setProfileData] =
-    useState(
-      savedDraft?.profileData ?? {
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      }
-    );  
-  
-const [companyData, setCompanyData] =
-  useState(
+  const [companyData, setCompanyData] = useState(
     savedDraft?.companyData ?? {
       companyName: "",
       companyRegistrationNo: "",
@@ -695,11 +981,10 @@ const [companyData, setCompanyData] =
       operationLicenseNo: "",
       operationLicenseExpiry: "",
       sagiaNumber: "",
-    }
+    },
   );
 
-  const [attorneyData, setAttorneyData] =
-  useState(
+  const [attorneyData, setAttorneyData] = useState(
     savedDraft?.attorneyData ?? {
       title: "",
       firstName: "",
@@ -710,25 +995,21 @@ const [companyData, setCompanyData] =
       district: "",
       postalCode: "",
       nationalIdNumber: "",
-    }
+    },
   );
 
   const [docFiles, setDocFiles] = useState<Record<string, File | null>>({});
 
   const stepData = [profileData, companyData, attorneyData, {}, {}];
-  const [otpOpen,    setOtpOpen]    = useState(false);   // ← controls dialog
+  const [otpOpen, setOtpOpen] = useState(false); // ← controls dialog
 
-  const [isEmailVerified, setIsEmailVerified] =
-    useState(savedDraft?.isEmailVerified ?? false);
+  const [isEmailVerified, setIsEmailVerified] = useState(
+    savedDraft?.isEmailVerified ?? false,
+  );
 
   const patchProfile = (k: string, v: string) => {
-
     // if verified email changes → reset verification
-    if (
-      k === "email" &&
-      v !== profileData.email &&
-      isEmailVerified
-    ) {
+    if (k === "email" && v !== profileData.email && isEmailVerified) {
       setIsEmailVerified(false);
       setOtpOpen(false);
     }
@@ -739,61 +1020,51 @@ const [companyData, setCompanyData] =
     }));
   };
 
-  const patchCompany = (k: string, v: string) => setCompanyData((p) => ({ ...p, [k]: v }));
-  const patchAttorney = (k: string, v: string) => setAttorneyData((p) => ({ ...p, [k]: v }));
+  const patchCompany = (k: string, v: string) =>
+    setCompanyData((p) => ({ ...p, [k]: v }));
+  const patchAttorney = (k: string, v: string) =>
+    setAttorneyData((p) => ({ ...p, [k]: v }));
   const patchDocFile = (documentType: string, file: File | null) => {
     setDocFiles((prev) => ({ ...prev, [documentType]: file }));
   };
 
-
   useEffect(() => {
+    const draft: BuyerRegisterDraft = {
+      activeStep,
 
-  const draft: BuyerRegisterDraft = {
-    activeStep,
+      isEmailVerified,
 
-    isEmailVerified,
+      profileData,
 
-    profileData,
+      companyData,
 
-    companyData,
+      attorneyData,
+    };
 
-    attorneyData,
-  };
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(draft)
-  );
-
-}, [
-  activeStep,
-  isEmailVerified,
-  profileData,
-  companyData,
-  attorneyData,
-]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  }, [activeStep, isEmailVerified, profileData, companyData, attorneyData]);
 
   const handleNext = async () => {
     const errs = validateStep(activeStep, stepData[activeStep]);
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
     setErrors({});
-    
-    if (activeStep === 0 && !isEmailVerified) {
 
+    if (activeStep === 0 && !isEmailVerified) {
       const result = await dispatch(
         emailOtpSendAndVerify({
           email: profileData?.email,
-        })
+        }),
       );
 
       if (emailOtpSendAndVerify.fulfilled.match(result)) {
         setOtpOpen(true);
       } else {
-        const raw =
-          result.payload ?? "Failed to send OTP";
+        const raw = result.payload ?? "Failed to send OTP";
 
-        const message =
-          ERROR_MESSAGES[raw] ?? raw;
+        const message = ERROR_MESSAGES[raw] ?? raw;
 
         toast.error(message);
       }
@@ -806,79 +1077,93 @@ const [companyData, setCompanyData] =
       return;
     }
 
-    const result = await dispatch(registerBuyer({
-      profileData: {
-        name:           profileData?.name,
-        email:           profileData.email,
-        password:        profileData.password,
-
-      },
-      companyData: {
-        companyName:            companyData.companyName,
-        companyRegistrationNo:  companyData.companyRegistrationNo,
-        corporateTelephone:     companyData.corporateTelephone,
-        companyType:            companyData.companyType,
-        operationLicenseNo:     companyData.operationLicenseNo     || undefined,
-        operationLicenseExpiry: companyData.operationLicenseExpiry || undefined,
-        sagiaNumber:            companyData.sagiaNumber            || undefined,
-      },
-      attorneyData: {
-        title:           attorneyData.title,
-        firstName:       attorneyData.firstName,
-        lastName:        attorneyData.lastName,
-        mobileNumber:    attorneyData.mobileNumber,
-        homeAddress:     attorneyData.homeAddress,
-        city:            attorneyData.city,
-        district:        attorneyData.district,
-        postalCode:      attorneyData.postalCode,
-        nationalIdNumber:attorneyData.nationalIdNumber,
-      },
-    }));
+    const result = await dispatch(
+      registerBuyer({
+        profileData: {
+          name: profileData?.name,
+          email: profileData.email,
+          password: profileData.password,
+        },
+        companyData: {
+          companyName: companyData.companyName,
+          companyRegistrationNo: companyData.companyRegistrationNo,
+          corporateTelephone: companyData.corporateTelephone,
+          companyType: companyData.companyType,
+          operationLicenseNo: companyData.operationLicenseNo || undefined,
+          operationLicenseExpiry:
+            companyData.operationLicenseExpiry || undefined,
+          sagiaNumber: companyData.sagiaNumber || undefined,
+        },
+        attorneyData: {
+          title: attorneyData.title,
+          firstName: attorneyData.firstName,
+          lastName: attorneyData.lastName,
+          mobileNumber: attorneyData.mobileNumber,
+          homeAddress: attorneyData.homeAddress,
+          city: attorneyData.city,
+          district: attorneyData.district,
+          postalCode: attorneyData.postalCode,
+          nationalIdNumber: attorneyData.nationalIdNumber,
+        },
+      }),
+    );
 
     if (!registerBuyer.fulfilled.match(result)) {
-      const raw     = result.payload ?? "Registration failed. Please try again.";
+      const raw = result.payload ?? "Registration failed. Please try again.";
       const message = ERROR_MESSAGES[raw] ?? raw;
       toast.error(message);
       return;
     }
     const buyerId = result.payload?.user?.buyer?.id;
 
-    const filesToUpload = Object.entries(docFiles).filter(([_, file]) => file !== null);
+    const filesToUpload = Object.entries(docFiles).filter(
+      ([_, file]) => file !== null,
+    );
 
     if (filesToUpload.length > 0) {
       try {
         const uploads = filesToUpload.map(([documentType, file]) => {
           const formData = new FormData();
-          formData.append("file",         file!);
+          formData.append("file", file!);
           formData.append("documentType", documentType);
-          formData.append("entityType",   "buyer");
-          formData.append("entityId",     String(buyerId));
-          return apiFetch("/api/document/upload", { method: "POST", body: formData })
-            .then(async (res) => {
-              if (!res.ok) {
-                const data = await res.json();
-                throw new Error(`${documentType}: ${data.message || "Upload failed"}`);
-              }
-              return res;
-            });
+          formData.append("entityType", "buyer");
+          formData.append("entityId", String(buyerId));
+          return apiFetch("/api/document/upload", {
+            method: "POST",
+            body: formData,
+          }).then(async (res) => {
+            if (!res.ok) {
+              const data = await res.json();
+              throw new Error(
+                `${documentType}: ${data.message || "Upload failed"}`,
+              );
+            }
+            return res;
+          });
         });
 
         await Promise.all(uploads);
       } catch (err: any) {
         // Buyer was created but some docs failed — still navigate, warn the user
-        toast.warning("Registered successfully but some documents failed to upload. You can re-upload them after logging in.");
+        toast.warning(
+          "Registered successfully but some documents failed to upload. You can re-upload them after logging in.",
+        );
+        localStorage.removeItem(STORAGE_KEY);
+
         navigate("/");
         return;
       }
     }
-    toast.success("Successfully sent details. Please wait for Approval before login.", { autoClose: 1500 });
-    toast.info("Check in registered email for Approval message.", { autoClose: 2500 });
+    toast.success(
+      "Successfully sent details. Please wait for Approval before login.",
+      { autoClose: 1500 },
+    );
+    toast.info("Check in registered email for Approval message.", {
+      autoClose: 2500,
+    });
     localStorage.removeItem(STORAGE_KEY);
     navigate("/");
-  
-
-  }
-  
+  };
 
   const handleBack = () => {
     setErrors({});
@@ -886,15 +1171,16 @@ const [companyData, setCompanyData] =
   };
 
   const handleVerifyOtp = async (code: string) => {
-    const result = await dispatch(emailOtpSendAndVerify({ email: profileData?.email, code }));
+    const result = await dispatch(
+      emailOtpSendAndVerify({ email: profileData?.email, code }),
+    );
 
     if (emailOtpSendAndVerify.fulfilled.match(result)) {
       setOtpOpen(false);
-      setIsEmailVerified(true)
+      setIsEmailVerified(true);
       setActiveStep((s) => s + 1);
-
     } else {
-      const raw     = result.payload ?? "Invalid OTP. Please try again.";
+      const raw = result.payload ?? "Invalid OTP. Please try again.";
       const message = ERROR_MESSAGES[raw] ?? raw;
       toast.error(message);
     }
@@ -902,42 +1188,44 @@ const [companyData, setCompanyData] =
 
   // ── Resend: re-dispatch login (server invalidates old OTP and sends new one) ──
   const handleResend = async () => {
-
     const result = await dispatch(
       emailOtpSendAndVerify({
         email: profileData?.email,
-      })
+      }),
     );
 
     if (emailOtpSendAndVerify.fulfilled.match(result)) {
-
-      toast.info(
-        "A new code has been sent.",
-        { autoClose: 2000 }
-      );
-
+      toast.info("A new code has been sent.", { autoClose: 2000 });
     } else {
-
-      toast.error(
-        "Failed to resend code. Please try again."
-      );
+      toast.error("Failed to resend code. Please try again.");
     }
   };
 
   return (
     <div
       className="min-h-screen flex flex-col"
-      style={{ background: "linear-gradient(135deg, #e8f0f7 0%, #d4e4f0 100%)" }}
+      style={{
+        background: "linear-gradient(135deg, #e8f0f7 0%, #d4e4f0 100%)",
+      }}
     >
       {/* Navbar */}
       <nav className="bg-white border-b border-gray-100 px-6 h-16 flex items-center justify-between sticky top-0 z-10">
-        <div onClick={() => {navigate('/')}} className="flex cursor-pointer items-center gap-2.5">
+        <div
+          onClick={() => {
+            navigate("/");
+          }}
+          className="flex cursor-pointer items-center gap-2.5"
+        >
           <div className="w-9 h-9 bg-secondary rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-base">R</span>
           </div>
           <div>
-            <p className="font-bold text-sm text-primary leading-tight tracking-wide">RUFAAD</p>
-            <p className="text-[11px] text-gray-400 tracking-wider">Invest In Future.</p>
+            <p className="font-bold text-sm text-primary leading-tight tracking-wide">
+              RUFAAD
+            </p>
+            <p className="text-[11px] text-gray-400 tracking-wider">
+              Invest In Future.
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -972,18 +1260,24 @@ const [companyData, setCompanyData] =
                   fontWeight: 500,
                   color: "#9CA3AF",
                 },
-                "& .MuiStepLabel-label.Mui-active": { color: 'var(--color-primary)', fontWeight: 600 },
-                "& .MuiStepLabel-label.Mui-completed": { color: 'var(--color-primary)', fontWeight: 500 },
+                "& .MuiStepLabel-label.Mui-active": {
+                  color: "var(--color-primary)",
+                  fontWeight: 600,
+                },
+                "& .MuiStepLabel-label.Mui-completed": {
+                  color: "var(--color-primary)",
+                  fontWeight: 500,
+                },
                 "& .MuiStep-root": { padding: "6px 0" },
               }}
             >
               {STEPS.map((label) => (
                 <Step key={label}>
-                  <StepLabel   
-                      slots={{
-                        stepIcon: CustomStepIcon,
-                      }}
-                      >
+                  <StepLabel
+                    slots={{
+                      stepIcon: CustomStepIcon,
+                    }}
+                  >
                     {label}
                   </StepLabel>
                 </Step>
@@ -1002,48 +1296,101 @@ const [companyData, setCompanyData] =
 
             {/* Step content */}
             {activeStep === 0 && (
-              <ProfileSetup data={profileData} onChange={patchProfile} errors={errors} />
+              <ProfileSetup
+                data={profileData}
+                onChange={patchProfile}
+                errors={errors}
+              />
             )}
             {activeStep === 1 && (
-              <CompanyDetails data={companyData} onChange={patchCompany} errors={errors} />
+              <CompanyDetails
+                data={companyData}
+                onChange={patchCompany}
+                errors={errors}
+              />
             )}
             {activeStep === 2 && (
-              <PowerOfAttorney data={attorneyData} onChange={patchAttorney} errors={errors} />
+              <PowerOfAttorney
+                data={attorneyData}
+                onChange={patchAttorney}
+                errors={errors}
+              />
             )}
-            {activeStep === 3 &&  <SupportingDocuments
-                                    docFiles={docFiles}
-                                    onFileChange={patchDocFile}
-                                  />}
+            {activeStep === 3 && (
+              <SupportingDocuments
+                docFiles={docFiles}
+                onFileChange={patchDocFile}
+              />
+            )}
 
             {activeStep === 4 && (
-              <ReviewConfirm allData={{ profile: profileData, company: companyData, attorney: attorneyData }} />
+              <ReviewConfirm
+                allData={{
+                  profile: profileData,
+                  company: companyData,
+                  attorney: attorneyData,
+                }}
+              />
             )}
 
             {/* Navigation buttons */}
             <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={handleBack}
-                disabled={activeStep === 0}
-                className="px-8 py-2.5 rounded-full border-2 border-gray-300 text-gray-600 font-semibold text-sm
-                  hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                Back
-              </button>
+              {activeStep === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => navigate("/")}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-full border-2 border-gray-300 text-gray-600 font-semibold text-sm
+                    hover:border-primary hover:text-primary transition-all"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
+                  </svg>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="px-8 py-2.5 rounded-full border-2 border-gray-300 text-gray-600 font-semibold text-sm
+                    hover:border-primary hover:text-primary transition-all"
+                >
+                  Back
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={handleNext}
                 className="px-10 py-2.5 rounded-full bg-primary text-white font-semibold text-sm
                   hover:bg-[#243a64] active:scale-[0.98] transition-all shadow-md shadow-navy-200"
               >
-                {
-                  isLoadingOTP
-                    ? "Verifying Email..."
-                    : activeStep === STEPS.length - 1
+                {isLoadingOTP
+                  ? "Verifying Email..."
+                  : activeStep === STEPS.length - 1
                     ? "Submit"
-                    : "Next"
-                }              
-
+                    : "Next"}
               </button>
             </div>
           </div>
@@ -1051,7 +1398,9 @@ const [companyData, setCompanyData] =
       </div>
 
       {/* Footer */}
-      <p className="text-center text-xs text-gray-400 pb-5">©2025 Powered by Tabashir</p>
+      <p className="text-center text-xs text-gray-400 pb-5">
+        ©2025 Powered by Tabashir
+      </p>
     </div>
   );
 };

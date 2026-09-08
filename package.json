@@ -11,13 +11,12 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "postdeploy": "echo Done!"
-
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.10",
-    "@mui/icons-material": "^9.0.0",
+    "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.0.0",
     "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.2.2",
