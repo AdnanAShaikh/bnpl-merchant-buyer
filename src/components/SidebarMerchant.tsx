@@ -108,8 +108,6 @@ const NAV_ITEMS = [
   },
 ];
 
-const NAVY = "#1a2a4a";
-
 // ─── Sidebar Component ────────────────────────────────────────────────────────
 interface SidebarProps {
   children: React.ReactNode;

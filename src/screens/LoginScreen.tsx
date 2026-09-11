@@ -870,28 +870,6 @@ const SignUpForm = () => {
   );
 };
 
-// ─── Navbar ───────────────────────────────────────────────────────────────────
-const Navbar = () => (
-  <nav className="bg-white border-b border-gray-100 px-6 h-16 flex items-center justify-between sticky top-0 z-10">
-    <div className="flex items-center gap-2.5">
-      <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-        <span className="text-white font-bold text-base">R</span>
-      </div>
-      <div>
-        <p className="font-bold text-sm text-primary leading-tight tracking-wide">
-          RUFAAD
-        </p>
-        <p className="text-[11px] text-gray-400 tracking-wider">
-          Invest In Future
-        </p>
-      </div>
-    </div>
-    <button className="border border-primary text-primary text-sm font-medium px-4 py-1.5 rounded-full hover:bg-gray-50 transition-colors">
-      Contact Support
-    </button>
-  </nav>
-);
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 const LoginScreen = () => {
   const [tab, setTab] = useState<AuthTab>(0);
