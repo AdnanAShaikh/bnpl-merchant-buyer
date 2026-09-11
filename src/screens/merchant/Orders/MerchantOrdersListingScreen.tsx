@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from "react";
-import SidebarMerchant from "../../components/SidebarMerchant";
-import DataTable from "../../components/DataTable";
-import type { ColumnDef, RowAction } from "../../components/DataTable";
+import SidebarMerchant from "../../../components/SidebarMerchant";
+import DataTable from "../../../components/DataTable";
+import type { ColumnDef, RowAction } from "../../../components/DataTable";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { toast } from "react-toastify";
 import {
@@ -14,7 +14,7 @@ import {
   selectMyOrders,
   selectMyOrdersLoading,
   selectMyOrdersError,
-} from "../../store/slices/orderSlice";
+} from "../../../store/slices/orderSlice";
 
 const NAVY = "#1a2a4a";
 
@@ -442,7 +442,7 @@ const MerchantOrdersListingScreen = () => {
     {
       label: "View Order",
       icon: eyeIcon,
-      onClick: (order) => navigate(`/merchant/orders/${order.id}`),
+      onClick: (order) => navigate(`/merchant/order/${order.id}`),
     },
     {
       label: "Confirm Fulfillment",

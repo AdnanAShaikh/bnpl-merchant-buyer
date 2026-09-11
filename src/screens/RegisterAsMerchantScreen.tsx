@@ -24,6 +24,8 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
 import { apiFetch } from "../utils/apiFetch";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { DateField } from "../components/DateField";
 
 type MerchantRegisterDraft = {
   activeStep: number;
@@ -85,7 +87,6 @@ interface OtpDialogProps {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const NAVY = "#1a2a4a";
-const RED = "#DC2626";
 
 const STEPS = [
   "Profile Setup",
@@ -349,14 +350,9 @@ const OtpDialog = ({
 
         {/* Icon */}
         <div className="flex justify-center mb-5">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)",
-            }}
-          >
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-primary/5">
             <svg
-              className="w-8 h-8 text-secondary"
+              className="w-8 h-8 text-primary"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -376,7 +372,7 @@ const OtpDialog = ({
         </h2>
         <p className="text-sm text-gray-400 text-center mb-6">
           Enter 6-digit code sent to{" "}
-          <span className="font-semibold text-secondary">{email}</span>
+          <span className="font-semibold text-primary">{email}</span>
         </p>
 
         {/* Digit boxes */}
@@ -401,10 +397,10 @@ const OtpDialog = ({
                 transition-all duration-150 bg-gray-50
                 ${
                   digit
-                    ? "border-secondary bg-white text-primary"
+                    ? "border-primary bg-white text-primary"
                     : otpError
                       ? "border-red-400 bg-red-50"
-                      : "border-gray-200 text-gray-800 focus:border-secondary focus:bg-white"
+                      : "border-gray-200 text-gray-800 focus:border-primary focus:bg-white"
                 }
               `}
               style={{ caretColor: "transparent" }}
@@ -423,14 +419,14 @@ const OtpDialog = ({
           {canResend ? (
             <button
               onClick={handleResend}
-              className="text-sm font-semibold text-secondary hover:text-red-800 transition-colors"
+              className="text-sm font-semibold text-primary hover:text-[#22335a] transition-colors"
             >
               Resend Code
             </button>
           ) : (
             <p className="text-sm text-gray-400">
               Resend{" "}
-              <span className="font-semibold text-secondary">
+              <span className="font-semibold text-primary">
                 {formatTime(countdown)}
               </span>
             </p>
@@ -441,7 +437,7 @@ const OtpDialog = ({
         <button
           onClick={handleSubmit}
           disabled={loading || filled < OTP_LENGTH}
-          className="w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-secondary hover:bg-red-700 shadow-md shadow-red-200"
+          className="w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-primary hover:bg-[#22335a] shadow-md shadow-primary/30"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -499,6 +495,84 @@ function CustomStepIcon(props: StepIconProps) {
     </StepIconRoot>
   );
 }
+
+const ExitWarningDialog = ({
+  open,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => (
+  <Dialog
+    open={open}
+    onClose={onCancel}
+    maxWidth="xs"
+    fullWidth
+    slotProps={{
+      backdrop: {
+        sx: {
+          backgroundColor: "rgba(0,0,0,0.75)",
+          backdropFilter: "blur(4px)",
+        },
+      },
+      paper: {
+        sx: {
+          borderRadius: "20px",
+          boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
+          padding: "8px",
+        },
+      },
+    }}
+  >
+    <DialogContent sx={{ p: "32px 36px 28px" }}>
+      {/* Warning icon */}
+      <div className="flex justify-center mb-5">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-50">
+          <svg
+            className="w-8 h-8 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.8}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <h2 className="text-xl font-bold text-primary text-center mb-1">
+        Leave registration?
+      </h2>
+      <p className="text-sm text-gray-400 text-center mb-6">
+        Your progress won't be saved. All the details you've entered so far will
+        be lost.
+      </p>
+
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all"
+        >
+          Stay
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="flex-1 py-3 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 active:scale-[0.98] transition-all"
+        >
+          Leave
+        </button>
+      </div>
+    </DialogContent>
+  </Dialog>
+);
 
 // ─── Step 1 — Profile Setup ───────────────────────────────────────────────────
 const ProfileSetup = ({ data, onChange, errors }: any) => {
@@ -566,7 +640,7 @@ const CompanyDetails = ({ data, onChange, errors }: any) => (
       error={errors.companyType}
       options={COMPANY_TYPES.map((c) => ({
         value: c.value,
-        label: `${c.en} — ${c.ar}`,
+        label: `${c.en}`,
       }))}
     />
 
@@ -654,10 +728,8 @@ const CompanyDetails = ({ data, onChange, errors }: any) => (
         value={data.operationLicenseNo || ""}
         onChange={(v) => onChange("operationLicenseNo", v)}
       />
-      <Input
+      <DateField
         label="Expiration Date"
-        name="operationLicenseExpiry"
-        type="date"
         value={data.operationLicenseExpiry || ""}
         onChange={(v) => onChange("operationLicenseExpiry", v)}
       />
@@ -1153,11 +1225,13 @@ const RegisterAsMerchantScreen = () => {
     }
   })();
 
+  const isLoadingOTP = useAppSelector(selectEmailOtpLoading);
   const [activeStep, setActiveStep] = useState(savedDraft?.activeStep ?? 0);
+  const isXl = useMediaQuery("(min-width: 1280px)");
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [docFiles, setDocFiles] = useState<Record<string, File | null>>({});
-  const isLoadingOTP = useAppSelector(selectEmailOtpLoading);
+  const [exitWarningOpen, setExitWarningOpen] = useState(false);
 
   const [profileData, setProfileData] = useState(
     savedDraft?.profileData ?? {
@@ -1432,42 +1506,49 @@ const RegisterAsMerchantScreen = () => {
     }
   };
 
+  const handleConfirmExit = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setExitWarningOpen(false);
+    navigate("/");
+  };
+
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        background: "linear-gradient(135deg, #e8f0f7 0%, #d4e4f0 100%)",
-      }}
-    >
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Navbar */}
-      <nav className="bg-white border-b border-gray-100 px-6 h-16 flex items-center justify-between sticky top-0 z-10">
+      <nav className="bg-primary border-b border-gray-100 px-6 h-16 flex items-center justify-between sticky top-0 z-10">
         <div
-          onClick={() => {
-            navigate("/");
-          }}
+          onClick={() => setExitWarningOpen(true)}
           className="flex cursor-pointer items-center gap-2.5"
         >
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-base">R</span>
+          <div className="w-10 h-10 bg-white border border-gray-100 rounded-md flex items-center justify-center shadow-sm">
+            <span className="text-primary font-black text-lg leading-none">
+              R
+            </span>
           </div>
-          <div>
-            <p className="font-bold text-sm text-primary leading-tight tracking-wide">
+          <div className="max-sm:hidden flex flex-col leading-tight">
+            <span className="font-black text-sm tracking-widest text-white">
               RUFAAD
-            </p>
-            <p className="text-[11px] text-gray-400 tracking-wider">
+            </span>
+            <span
+              className="text-[11px] text-white tracking-wide"
+              style={{ fontFamily: "serif" }}
+            >
               Invest In Future.
-            </p>
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button className="border border-primary text-primary text-sm font-medium px-4 py-1.5 rounded-full hover:bg-gray-50 transition-colors">
+          <span className="text-sm text-white cursor-pointer  transition-colors">
+            عربي
+          </span>
+          <button className="border border-white text-white hover:text-primary text-sm font-medium px-4 py-1.5 rounded-full hover:bg-gray-50 transition-colors">
             Contact Support
           </button>
-          <span className="text-sm text-gray-500 cursor-pointer">عربي</span>
         </div>
       </nav>
 
-      <div className="flex-1 flex gap-6 p-6 max-w-6xl mx-auto w-full">
+      <div className="flex-1 flex flex-col xl:flex-row gap-6 p-6 max-w-6xl mx-auto w-full">
+        {" "}
         <OtpDialog
           open={otpOpen}
           email={profileData?.email}
@@ -1476,39 +1557,39 @@ const RegisterAsMerchantScreen = () => {
           onResend={handleResend}
           onClose={() => setOtpOpen(false)}
         />
-
+        <ExitWarningDialog
+          open={exitWarningOpen}
+          onConfirm={handleConfirmExit}
+          onCancel={() => setExitWarningOpen(false)}
+        />
         {/* ── Left: Stepper sidebar ── */}
-        <div className="w-64 flex-shrink-0">
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 sticky top-24">
+        <div className="w-full xl:w-64 xl:flex-shrink-0 xl:self-start xl:sticky xl:top-24">
+          <div className="bg-white rounded-2xl border border-primary p-4 overflow-x-auto">
             <Stepper
               activeStep={activeStep}
-              orientation="vertical"
-              // connector={<RedConnector />}
+              orientation={isXl ? "vertical" : "horizontal"}
               sx={{
+                minWidth: isXl ? "auto" : "max-content", // lets it scroll x when horizontal
                 "& .MuiStepLabel-label": {
                   fontFamily: "inherit",
                   fontSize: "14px",
                   fontWeight: 500,
-                  color: "#9CA3AF",
+                  color: NAVY,
                 },
                 "& .MuiStepLabel-label.Mui-active": {
                   color: NAVY,
                   fontWeight: 600,
                 },
                 "& .MuiStepLabel-label.Mui-completed": {
-                  color: RED,
+                  color: NAVY,
                   fontWeight: 500,
                 },
-                "& .MuiStep-root": { padding: "6px 0" },
+                "& .MuiStep-root": { padding: isXl ? "6px 0" : "0 4px" },
               }}
             >
               {STEPS.map((label) => (
                 <Step key={label}>
-                  <StepLabel
-                    slots={{
-                      stepIcon: CustomStepIcon,
-                    }}
-                  >
+                  <StepLabel slots={{ stepIcon: CustomStepIcon }}>
                     {label}
                   </StepLabel>
                 </Step>
@@ -1516,10 +1597,9 @@ const RegisterAsMerchantScreen = () => {
             </Stepper>
           </div>
         </div>
-
         {/* ── Right: Form card ── */}
-        <div className="flex-1">
-          <div className="bg-white rounded-2xl border border-gray-100 p-8">
+        <div className="flex-1 mt-2 ">
+          <div className="bg-white rounded-2xl border border-primary p-6">
             {/* Step title */}
             <h1 className="text-xl font-bold text-primary mb-6">
               {stepTitles[activeStep]}
@@ -1576,7 +1656,7 @@ const RegisterAsMerchantScreen = () => {
               {activeStep === 0 ? (
                 <button
                   type="button"
-                  onClick={() => navigate("/")}
+                  onClick={() => setExitWarningOpen(true)}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-full border-2 border-gray-300 text-gray-600 font-semibold text-sm
                     hover:border-primary hover:text-primary transition-all"
                 >
@@ -1622,7 +1702,7 @@ const RegisterAsMerchantScreen = () => {
                 type="button"
                 onClick={handleNext}
                 className="px-10 py-2.5 rounded-full bg-primary text-white font-semibold text-sm
-                  hover:bg-[#243a64] active:scale-[0.98] transition-all shadow-md shadow-navy-200"
+                  hover:bg-primary/80 active:scale-[0.98] transition-all shadow-md shadow-primary/20"
               >
                 {isLoadingOTP
                   ? "Verifying Email..."
@@ -1634,11 +1714,6 @@ const RegisterAsMerchantScreen = () => {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <p className="text-center text-xs text-gray-400 pb-5">
-        ©2025 Powered by Tabashir
-      </p>
     </div>
   );
 };

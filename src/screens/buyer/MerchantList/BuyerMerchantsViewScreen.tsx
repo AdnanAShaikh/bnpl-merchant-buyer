@@ -239,7 +239,7 @@ const BuyerMerchantsViewScreen = () => {
             onClick={() => navigate("/buyer/marketplace")}
             className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#1a2a4a] text-white hover:bg-[#243a5e] transition-colors"
           >
-            Back to Marketplace
+            Back to Merchants
           </button>
         </div>
       </SidebarBuyer>

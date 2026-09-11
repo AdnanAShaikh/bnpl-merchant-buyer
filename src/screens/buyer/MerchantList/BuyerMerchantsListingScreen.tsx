@@ -100,7 +100,7 @@ const BuyerMerchantsListingScreen = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-5 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-primary">Marketplace</h1>
+          <h1 className="text-xl font-bold text-primary">Merchants</h1>
           <p className="text-xs text-gray-400 mt-0.5">
             Browse merchants and explore their catalogues
           </p>

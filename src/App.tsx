@@ -4,11 +4,11 @@ import RegisterAsMerchantScreen from "./screens/RegisterAsMerchantScreen";
 import RegisterAsBuyerScreen from "./screens/RegisterAsBuyerScreen";
 import BuyerDashboardScreen from "./screens/buyer/BuyerDashboardScreen";
 import BuyerWalletScreen from "./screens/buyer/BuyerWalletScreen";
-import BuyerOrdersListingScreen from "./screens/buyer/BuyerOrdersListingScreen";
+import BuyerOrdersListingScreen from "./screens/buyer/Orders/BuyerOrdersListingScreen";
 import MerchantDashboardScreen from "./screens/merchant/MerchantDashboardScreen";
 import MerchantWalletScreen from "./screens/merchant/MerchantWalletScreen";
 import MerchantBuyersListingScreen from "./screens/merchant/MerchantBuyersListingScreen";
-import MerchantOrdersListingScreen from "./screens/merchant/MerchantOrdersListingScreen";
+import MerchantOrdersListingScreen from "./screens/merchant/Orders/MerchantOrdersListingScreen";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import {
   logoutUser,
@@ -21,11 +21,13 @@ import ForgotPassword from "./screens/ForgotPassword";
 import { apiFetch } from "./utils/apiFetch";
 import MarketplaceListing from "./screens/buyer/Marketplace-Products/MarketplaceListing";
 import MarketplaceProductItemView from "./screens/buyer/Marketplace-Products/MarketplaceProductItemView";
-import MerchantProductsListingScreen from "./screens/merchant/product/MerchantProductsListingScreen";
-import MerchantCreateProductScreen from "./screens/merchant/product/MerchantCreateProductScreen";
-import MerchantEditProductScreen from "./screens/merchant/product/MerchantEditProductScreen";
+import MerchantProductsListingScreen from "./screens/merchant/Product/MerchantProductsListingScreen";
+import MerchantCreateProductScreen from "./screens/merchant/Product/MerchantCreateProductScreen";
+import MerchantEditProductScreen from "./screens/merchant/Product/MerchantEditProductScreen";
 import BuyerMerchantsListingScreen from "./screens/buyer/MerchantList/BuyerMerchantsListingScreen";
 import BuyerMerchantsViewScreen from "./screens/buyer/MerchantList/BuyerMerchantsViewScreen";
+import BuyerOrderViewScreen from "./screens/buyer/Orders/BuyerOrderViewScreen";
+import MerchantOrderViewScreen from "./screens/merchant/Orders/MerchantOrderViewScreen";
 
 function App() {
   const authUser = useAppSelector(selectAuthUser);
@@ -76,7 +78,11 @@ function App() {
     verify();
   }, [location.pathname]);
 
-  if (booting) {
+  if (
+    booting &&
+    location.pathname !== "/" &&
+    !location.pathname.includes("/register")
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5]">
         <div className="flex flex-col items-center gap-3">
@@ -128,6 +134,11 @@ function App() {
                   element={<BuyerOrdersListingScreen />}
                 />
                 <Route
+                  path="/buyer/order/:id"
+                  element={<BuyerOrderViewScreen />}
+                />
+
+                <Route
                   path="/buyer/marketplace"
                   element={<MarketplaceListing />}
                 />
@@ -170,6 +181,10 @@ function App() {
                 <Route
                   path="/merchant/orders"
                   element={<MerchantOrdersListingScreen />}
+                />
+                <Route
+                  path="/merchant/order/:id"
+                  element={<MerchantOrderViewScreen />}
                 />
                 <Route
                   path="/merchant/products"

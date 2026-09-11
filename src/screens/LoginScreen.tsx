@@ -214,15 +214,11 @@ const OtpDialog = ({
         </IconButton>
 
         {/* Icon */}
+        {/* Icon */}
         <div className="flex justify-center mb-5">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)",
-            }}
-          >
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-primary/5">
             <svg
-              className="w-8 h-8 text-secondary"
+              className="w-8 h-8 text-primary"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -242,7 +238,7 @@ const OtpDialog = ({
         </h2>
         <p className="text-sm text-gray-400 text-center mb-6">
           Enter 6-digit code sent to{" "}
-          <span className="font-semibold text-secondary">{email}</span>
+          <span className="font-semibold text-primary">{email}</span>
         </p>
 
         {/* Digit boxes */}
@@ -267,10 +263,10 @@ const OtpDialog = ({
                 transition-all duration-150 bg-gray-50
                 ${
                   digit
-                    ? "border-secondary bg-white text-primary"
+                    ? "border-primary bg-white text-primary"
                     : otpError
                       ? "border-red-400 bg-red-50"
-                      : "border-gray-200 text-gray-800 focus:border-secondary focus:bg-white"
+                      : "border-gray-200 text-gray-800 focus:border-primary focus:bg-white"
                 }
               `}
               style={{ caretColor: "transparent" }}
@@ -289,14 +285,14 @@ const OtpDialog = ({
           {canResend ? (
             <button
               onClick={handleResend}
-              className="text-sm font-semibold text-secondary hover:text-red-800 transition-colors"
+              className="text-sm font-semibold text-primary hover:text-primary/70 transition-colors"
             >
               Resend Code
             </button>
           ) : (
             <p className="text-sm text-gray-400">
               Resend{" "}
-              <span className="font-semibold text-secondary">
+              <span className="font-semibold text-primary">
                 {formatTime(countdown)}
               </span>
             </p>
@@ -307,7 +303,7 @@ const OtpDialog = ({
         <button
           onClick={handleSubmit}
           disabled={loading || filled < OTP_LENGTH}
-          className="w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-secondary hover:bg-red-700 shadow-md shadow-red-200"
+          className="w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-primary hover:bg-primary/90 shadow-md shadow-primary/30"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -901,114 +897,110 @@ const LoginScreen = () => {
   const [tab, setTab] = useState<AuthTab>(0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5f6f8] relative overflow-hidden">
-      {/* ── Background decoration ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* floating bubbles */}
-        <div className="absolute top-[12%] left-[8%] w-32 h-32 rounded-full bg-primary/[0.04]" />
-        <div className="absolute top-[20%] right-[12%] w-48 h-48 rounded-full bg-primary/[0.05]" />
-        <div className="absolute bottom-[24%] left-[16%] w-24 h-24 rounded-full bg-primary/[0.06]" />
-        <div className="absolute top-[46%] right-[6%] w-16 h-16 rounded-full bg-primary/[0.05]" />
-        <div className="absolute bottom-[30%] right-[22%] w-20 h-20 rounded-full bg-primary/[0.03]" />
+    <div className="min-h-screen flex">
+      {/* ── Left: full-height image ── */}
+      <div className="hidden md:block md:w-1/2 relative overflow-hidden bg-primary">
+        <img
+          src="/login-screen.jpg"
+          alt="RUFAAD"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* subtle primary overlay so the brand text stays legible */}
+        <div className="absolute inset-0 bg-primary/20" />
 
-        {/* bottom wave */}
-        <svg
-          className="absolute bottom-0 left-0 w-full text-primary/[0.06]"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          fill="currentColor"
-        >
-          <path d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,218.7C672,235,768,245,864,229.3C960,213,1056,171,1152,165.3C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
-        </svg>
-
-        {/* second, deeper wave for layered depth */}
-        <svg
-          className="absolute bottom-0 left-0 w-full text-primary/[0.08]"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          fill="currentColor"
-        >
-          <path d="M0,288L48,272C96,256,192,224,288,224C384,224,480,256,576,266.7C672,277,768,267,864,240C960,213,1056,171,1152,170.7C1248,171,1344,213,1392,234.7L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
-        </svg>
+        {/* RUFAAD brand, top-left over image */}
+        <div className="absolute top-8 left-8 flex items-center gap-2.5 z-10">
+          <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+            <span className="text-primary font-black text-lg leading-none">
+              R
+            </span>
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span className="font-black text-sm tracking-widest text-white">
+              RUFAAD
+            </span>
+            <span
+              className="text-[11px] text-white/70 tracking-wide"
+              style={{ fontFamily: "serif" }}
+            >
+              Invest In Future.
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* ── Foreground (navbar + card) sits above decoration ── */}
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar />
+      {/* ── Right: form panel on white ── */}
+      <div className="w-full md:w-1/2 bg-white flex flex-col relative overflow-hidden">
+        {/* faint bubble decoration behind the form */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[10%] right-[8%] w-40 h-40 rounded-full bg-primary/[0.04]" />
+          <div className="absolute top-[38%] left-[6%] w-24 h-24 rounded-full bg-primary/[0.05]" />
+          <div className="absolute bottom-[18%] right-[16%] w-28 h-28 rounded-full bg-primary/[0.04]" />
+        </div>
 
-        <div className="flex-1 flex items-center justify-center px-4 py-10">
-          <div className="w-full max-w-[920px] bg-white rounded-3xl shadow-2xl shadow-black/20 p-3 flex gap-3">
-            {/* Left: illustration panel */}
-            <div className="hidden md:flex flex-col justify-between w-1/2 rounded-2xl p-6 bg-primary/5 relative overflow-hidden">
-              <div className="flex-1 flex items-center justify-center">
-                <div className="w-full h-full min-h-[440px] flex items-center justify-center text-primary/30">
-                  <img src={"/login-screen.jpg"} className="" />
-                </div>
-              </div>
-              <p className="text-sm font-semibold text-primary/70 mt-4">
-                RUFAAD — Shop now, pay later with ease.
+        {/* Form (centered, grows to fill) */}
+        <div className="relative z-10 flex-1 flex items-center justify-center px-6 py-10 sm:px-12">
+          <div className="w-full max-w-[420px]">
+            {/* Header */}
+            <div className="mb-5">
+              <h1 className="text-2xl font-bold text-primary mb-1">
+                {tab === 0 ? "Welcome back" : "Get Onboard"}
+              </h1>
+              <p className="text-sm text-gray-400">
+                {tab === 0
+                  ? "Sign in to continue to your account"
+                  : "Create your account to get started"}
               </p>
             </div>
 
-            {/* Right: form panel */}
-            <div className="w-full md:w-1/2 px-6 py-7 sm:px-9 flex flex-col">
-              {/* Header */}
-              <div className="mb-5">
-                <h1 className="text-2xl font-bold text-primary mb-1">
-                  {tab === 0 ? "Welcome back" : "Join RUFAAD"}
-                </h1>
-                <p className="text-sm text-gray-400">
-                  {tab === 0
-                    ? "Sign in to continue to your account"
-                    : "Create your account to get started"}
-                </p>
-              </div>
-
-              {/* Tabs */}
-              <div className="mb-5">
-                <Tabs
-                  value={tab}
-                  onChange={(_, v) => setTab(v as AuthTab)}
-                  variant="fullWidth"
-                  slotProps={{ indicator: { style: { display: "none" } } }}
-                  sx={{
-                    background: "#F3F4F6",
-                    borderRadius: "12px",
+            {/* Tabs */}
+            <div className="mb-5">
+              <Tabs
+                value={tab}
+                onChange={(_, v) => setTab(v as AuthTab)}
+                variant="fullWidth"
+                slotProps={{ indicator: { style: { display: "none" } } }}
+                sx={{
+                  background: "#F3F4F6",
+                  borderRadius: "12px",
+                  minHeight: 46,
+                  "& .MuiTab-root": {
+                    textTransform: "none",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    borderRadius: "10px",
                     minHeight: 46,
-                    "& .MuiTab-root": {
-                      textTransform: "none",
-                      fontWeight: 600,
-                      fontSize: "14px",
-                      borderRadius: "10px",
-                      minHeight: 46,
-                      color: "#6B7280",
-                      transition: "all .2s",
-                      fontFamily: "inherit",
-                    },
-                    "& .Mui-selected": {
-                      background: "var(--color-primary)",
-                      color: "#ffffff !important",
-                      borderRadius: "10px",
-                      boxShadow: "0 2px 10px rgba(26,42,74,0.35)",
-                    },
-                  }}
-                >
-                  <Tab label="Login" value={0} />
-                  <Tab label="Sign Up" value={1} />
-                </Tabs>
-              </div>
+                    color: "#6B7280",
+                    transition: "all .2s",
+                    fontFamily: "inherit",
+                  },
+                  "& .Mui-selected": {
+                    background: "var(--color-primary)",
+                    color: "#ffffff !important",
+                    borderRadius: "10px",
+                    boxShadow: "0 2px 10px rgba(26,42,74,0.35)",
+                  },
+                }}
+              >
+                <Tab label="Login" value={0} />
+                <Tab label="Sign Up" value={1} />
+              </Tabs>
+            </div>
 
-              {/* Form content */}
-              <div className="flex-1 min-h-[440px]">
-                {tab === 0 ? <LoginForm /> : <SignUpForm />}
-              </div>
+            {/* Form content */}
+            <div className="min-h-[440px]">
+              {tab === 0 ? <LoginForm /> : <SignUpForm />}
             </div>
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 pb-5">
-          ©2026 Powered by RUFAAD
-        </p>
+        {/* Right footer: Contact Us + copyright */}
+        <div className="relative z-10 flex items-center justify-between px-8 py-5 border-t border-gray-100">
+          <button className="text-sm font-semibold text-primary hover:text-[#22335a] transition-colors">
+            Contact Us
+          </button>
+          <p className="text-xs text-gray-400">©2026 Powered by RUFAAD</p>
+        </div>
       </div>
     </div>
   );
